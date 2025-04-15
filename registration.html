@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register | GTSniperBot</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+    .container { max-width: 400px; margin: auto; background: #fff; padding: 20px; border-radius: 5px; }
+    input { width: 100%; padding: 10px; margin: 8px 0; }
+    button { padding: 10px; background: #0056b3; color: #fff; border: none; cursor: pointer; }
+    button:hover { background: #003f7f; }
+    .message { color: green; margin-top: 10px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>Register</h2>
+  <form id="registrationForm">
+    <input type="text" id="contact" placeholder="Email or Telephone" required>
+    <input type="password" id="password" placeholder="Create Password" required>
+    <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+    <input type="text" id="referral" placeholder="Referral (Optional)">
+    <button type="submit">Register</button>
+  </form>
+  <div class="message" id="regMessage"></div>
+</div>
+
+<script>
+  document.getElementById('registrationForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var contact = document.getElementById('contact').value;
+    var password = document.getElementById('password').value;
+    var confirmPassword = document.getElementById('confirmPassword').value;
+
+    if(password !== confirmPassword) {
+      document.getElementById('regMessage').textContent = "Passwords do not match.";
+      return;
+    }
+    // Here you would normally send the data to a backend or Firebase.
+    document.getElementById('regMessage').textContent = "Registration successful!";
+    // Delay to let user read the message, then redirect to login page.
+    setTimeout(function() {
+      window.location.href = "login.html";
+    }, 2000);
+  });
+</script>
+</body>
+</html>

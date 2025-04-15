@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GTSniperBot | Revolutionizing Meme Coins Trading</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Preconnect for Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Google Font (Roboto) -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Roboto', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #fdfdfd;
+    }
+    a {
+      color: #0056b3;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    a:hover {
+      color: #003f7f;
+    }
+    /* Navigation Bar */
+    .navbar {
+      background: #0056b3;
+      padding: 15px 0;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar .container {
+      max-width: 1200px;
+      margin: auto;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+    .navbar a {
+      color: #fff;
+      font-weight: 500;
+      font-size: 1rem;
+    }
+    /* Sections */
+    section {
+      padding: 100px 20px 60px;
+      max-width: 1200px;
+      margin: auto;
+    }
+    section h1, section h2, section h3 {
+      color: #0056b3;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    section p {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+    }
+    /* Homepage */
+    #home {
+      background: url('https://source.unsplash.com/1600x900/?technology,abstract') no-repeat center/cover;
+      color: #fff;
+      padding: 150px 20px;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
+    }
+    #home h1 {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+    #home p {
+      font-size: 1.4rem;
+      max-width: 800px;
+      margin: 0 auto 30px;
+    }
+    .cta-buttons {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .cta-buttons a {
+      display: inline-block;
+      background: #0056b3;
+      color: #fff;
+      padding: 12px 25px;
+      margin: 10px;
+      border-radius: 5px;
+      font-weight: 500;
+      transition: background 0.3s ease;
+    }
+    .cta-buttons a:hover {
+      background: #003f7f;
+    }
+    /* About Us (Team Members) */
+    #about .team {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+    }
+    #about .team .member {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      width: 280px;
+      text-align: center;
+    }
+    #about .team .member img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 15px;
+    }
+    /* Replace Bruce Mars image with a new link */
+    #about .team .member:nth-child(3) img {
+      /* New professional image for Bruce Mars */
+      src: url('https://images.unsplash.com/photo-1614280392209-7bf210a961e8?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80');
+    }
+    /* Alternatively, if the above CSS rule doesn't update the image source in your environment,
+       replace the HTML below with this updated image URL for Bruce Mars:
+       <img src="https://images.unsplash.com/photo-1614280392209-7bf210a961e8?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" alt="Bruce Mars">
+    */
+    /* Testimonials */
+    #testimonials .testimonials-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+    }
+    #testimonials .testimonial {
+      background: #f9f9f9;
+      padding: 20px;
+      border-left: 4px solid #0056b3;
+      border-radius: 5px;
+      max-width: 350px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    #testimonials .testimonial img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 10px;
+    }
+    #testimonials .testimonial p {
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+    #testimonials .testimonial .author {
+      font-weight: 500;
+      color: #555;
+    }
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      #about .team, #testimonials .testimonials-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .navbar .container {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="#home">Home</a>
+      <a href="#about">About Us</a>
+      <a href="#testimonials">Testimonials</a>
+      <a href="#contact">Contact Us</a>
+    </div>
+  </nav>
+
+  <!-- Homepage Section -->
+  <section id="home">
+    <h1>GTSniperBot</h1>
+    <p>Experience the next level in Meme Coins trading. Our sophisticated algorithms help you generate up to 90% more profit daily.</p>
+    <div class="cta-buttons">
+      <a href="registration.html">Register</a>
+      <a href="login.html">Login</a>
+    </div>
+  </section>
+
+  <!-- About Us Section -->
+  <section id="about">
+    <h2>Meet the Team</h2>
+    <div class="team">
+      <!-- Naim Ahmed -->
+      <div class="member">
+        <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" alt="Naim Ahmed">
+        <h3>Naim Ahmed</h3>
+        <p>Chief Strategist</p>
+      </div>
+      <!-- Noémi Macavei-Katócz -->
+      <div class="member">
+        <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" alt="Noémi Macavei-Katócz">
+        <h3>Noémi Macavei-Katócz</h3>
+        <p>Lead Analyst</p>
+      </div>
+      <!-- Bruce Mars (Updated Image) -->
+      <div class="member">
+        <img src="https://images.unsplash.com/photo-1614280392209-7bf210a961e8?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80" alt="Bruce Mars">
+        <h3>Bruce Mars</h3>
+        <p>Technology Officer</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section id="testimonials">
+    <h2>What Our Users Say</h2>
+    <div class="testimonials-container">
+      <!-- Testimonial 1 -->
+      <div class="testimonial">
+        <img src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?ixlib=rb-1.2.1&auto=format&fit=crop&w=60&q=80" alt="Alex">
+        <p>"GTSniperBot completely transformed my trading approach—simply outstanding performance!"</p>
+        <p class="author">- Alex, USA</p>
+      </div>
+      <!-- Testimonial 2 -->
+      <div class="testimonial">
+        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=60&q=80" alt="Maria">
+        <p>"A game changer in meme coin trading. Intuitive and extremely profitable!"</p>
+        <p class="author">- Maria, UK</p>
+      </div>
+      <!-- Testimonial 3 -->
+      <div class="testimonial">
+        <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=60&q=80" alt="Chen">
+        <p>"Innovative, efficient, and user-friendly—what more could you ask for?"</p>
+        <p class="author">- Chen, China</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Us Section -->
+  <section id="contact">
+    <h2>Contact Us</h2>
+    <p>Have questions or need more information? Reach out to us today!</p>
+    <!-- Simple contact form example -->
+    <form style="max-width:600px; margin: 0 auto; text-align: center;">
+      <input type="text" placeholder="Your Name" style="width:100%; padding:12px; margin-bottom:10px;" required>
+      <input type="email" placeholder="Email Address" style="width:100%; padding:12px; margin-bottom:10px;" required>
+      <textarea placeholder="Your Message" rows="5" style="width:100%; padding:12px; margin-bottom:10px;" required></textarea>
+      <button type="submit" style="background: #0056b3; color: #fff; padding: 12px 20px; border: none; cursor: pointer;">Send Message</button>
+    </form>
+  </section>
+</body>
+</html>

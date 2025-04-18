@@ -2,298 +2,249 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard | GTSniperBot</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- Using Google Font for consistency -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
-    /* Base Styles */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      font-family: 'Roboto', sans-serif;
-      background: #f5f7fa;
-      color: #333;
-    }
-    /* Header */
-    .header {
-      background: #0056b3;
-      color: #fff;
-      padding: 20px 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .header h1 {
-      font-size: 1.8rem;
-      margin: 0;
-    }
-    .header button {
-      background: #fff;
-      color: #0056b3;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: background 0.3s;
-    }
-    .header button:hover {
-      background: #e6e6e6;
-    }
-    /* Main Container */
-    .container {
-      max-width: 1200px;
-      margin: 20px auto;
-      padding: 0 20px;
-    }
-    .section {
-      background: #fff;
-      margin-bottom: 20px;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    .section h2 {
-      margin-bottom: 15px;
-      color: #0056b3;
-      font-size: 1.4rem;
-    }
-    /* Wallet Section */
-    .wallets p {
-      font-size: 1.1rem;
-      margin-bottom: 10px;
-    }
-    /* Investment Options */
-    .investments ul {
-      list-style: none;
-      padding-left: 0;
-    }
-    .investments ul li {
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
-      font-size: 1rem;
-    }
-    .investments button {
-      background: #0056b3;
-      color: #fff;
-      border: none;
-      padding: 12px;
-      font-size: 1rem;
-      border-radius: 5px;
-      margin-top: 15px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    .investments button:hover {
-      background: #003f7f;
-    }
-    /* Transaction History */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    th, td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-    /* Interactive Countdown Timer */
-    .timer {
-      font-size: 1.2rem;
-      font-weight: bold;
-      margin-top: 5px;
-      color: #e67e22;
-    }
-    /* Forms */
-    form input, form button {
-      padding: 10px;
-      border-radius: 5px;
-      margin-bottom: 10px;
-      width: 100%;
-      font-size: 1rem;
-    }
-    form input {
-      border: 1px solid #ccc;
-    }
-    form button {
-      border: none;
-      background: #0056b3;
-      color: #fff;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    form button:hover {
-      background: #003f7f;
-    }
-    /* Responsive Adjustments */
-    @media (max-width: 768px) {
-      .header {
-        flex-direction: column;
-        text-align: center;
-      }
-      .header h1 {
-        margin-bottom: 10px;
-      }
-    }
-  </style>
-  <!-- Include Paystack Inline Script -->
+  <title>Premium Investment Dashboard | GTSniperBot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Tailwind CSS -->
+  <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Paystack Inline Script -->
   <script src="https://js.paystack.co/v1/inline.js"></script>
+  <!-- QRCode Library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDTdOCH906vse_wj2aSM2igxzxeMY3AdaI",
+      authDomain: "gtsniperbothosting.firebaseapp.com",
+      projectId: "gtsniperbothosting",
+      storageBucket: "gtsniperbothosting.firebasestorage.app",
+      messagingSenderId: "421895024210",
+      appId: "1:421895024210:web:b86f481da3d5f89534b98b"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+  <style>
+    .glassmorphism { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border-radius:16px; border:1px solid rgba(255,255,255,0.1); box-shadow:0 4px 30px rgba(0,0,0,0.1);}    
+    .investment-card:hover { transform: translateY(-3px); transition: transform 0.3s; }
+    .fade-in { animation: fadeIn 1s ease-in; }
+    @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+    input, textarea { color:#000!important; background:#fff; }
+  </style>
 </head>
-<body>
-  <!-- Header with Logout Button -->
-  <div class="header">
-    <h1>Welcome, [User]</h1>
-    <button onclick="logout()">Logout</button>
-  </div>
-  
-  <div class="container">
-    <!-- Wallet Section -->
-    <div class="section wallets">
-      <h2>Your Wallets</h2>
-      <p><strong>Bonus Wallet:</strong> N10,000/$6 (+ additional 5% bonus on investment)</p>
-      <p><strong>Personal Wallet:</strong> <span id="investmentAmount">N0/$0</span></p>
-      <p><strong>Profit Wallet:</strong> <span id="profitAmount">N0/$0</span></p>
+<body class="bg-gradient-to-br from-gray-900 to-blue-900 text-white font-sans min-h-screen overflow-x-hidden">
+  <!-- Header -->
+  <header class="flex justify-between items-center p-4 glassmorphism">
+    <div>
+      <h1 class="text-2xl font-bold">Welcome, <span id="userFirstName">User</span></h1>
+      <p class="text-sm text-gray-300" id="lastLogin"></p>
+    </div>
+    <div class="flex items-center space-x-4">
+      <div class="text-right relative">
+        <p class="text-sm">Referral Code</p>
+        <p class="font-mono" id="referralCode"></p>
+        <div id="notifBox" class="absolute top-full mt-2 w-64 bg-green-600 text-black p-2 rounded hidden"></div>
+      </div>
+      <div id="qrcodeContainer" class="w-16 h-16 bg-white p-1 rounded"></div>
+    </div>
+    <button onclick="logout()" class="bg-blue-600 px-4 py-2 rounded-lg">Logout</button>
+  </header>
+
+  <!-- Main -->
+  <main class="container mx-auto p-6 fade-in">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Wallets -->
+      <div class="space-y-6">
+        <div class="glassmorphism p-4 flex justify-between items-center">
+          <div><h3 class="font-bold text-lg">Bonus Wallet</h3><p class="text-2xl" id="bonusWalletDisplay"></p></div>
+          <button class="withdraw-btn bg-blue-600 px-4 py-2 rounded-lg" onclick="openWithdrawModal('bonus')">Withdraw</button>
+        </div>
+        <div class="glassmorphism p-4 flex justify-between items-center">
+          <div><h3 class="font-bold text-lg">Profit Wallet</h3><p class="text-2xl" id="profitWalletDisplay"></p></div>
+          <button class="withdraw-btn bg-blue-600 px-4 py-2 rounded-lg" onclick="openWithdrawModal('profit')">Withdraw</button>
+        </div>
+        <div class="glassmorphism p-4"><h3 class="font-bold text-lg">Personal Wallet</h3><p class="text-2xl" id="personalWalletDisplay"></p></div>
+      </div>
+
+      <!-- Investments -->
+      <div class="lg:col-span-2 space-y-6">
+        <div class="glassmorphism p-4">
+          <h2 class="text-xl font-bold mb-4">Investment Plans</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="plansContainer"></div>
+        </div>
+        <div class="glassmorphism p-4">
+          <h3 class="font-bold text-lg mb-4">Active Investments</h3>
+          <div id="activeInvestments" class="space-y-4"></div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        <div class="glassmorphism p-4">
+          <h3 class="font-bold text-lg mb-4">Quick Actions</h3>
+          <button class="w-full bg-purple-600 py-2 rounded mb-2" onclick="openTransferModal()">Transfer Funds</button>
+          <button class="w-full bg-blue-600 py-2 rounded" onclick="openBankModal()">Add Bank Details</button>
+        </div>
+        <!-- Bank Details -->
+        <div class="glassmorphism p-4">
+          <h3 class="font-bold text-lg mb-2">Bank Details</h3>
+          <p class="text-xs" id="localBankDisplay"></p>
+          <p class="text-xs font-mono" id="usdtDisplay"></p>
+        </div>
+        <!-- Transactions -->
+        <div class="glassmorphism p-4">
+          <h3 class="font-bold text-lg mb-2">Recent Transactions</h3>
+          <table class="w-full text-xs"><thead><tr><th>ID</th><th>Type</th><th>Amt</th><th>Date</th></tr></thead><tbody id="transactionHistory"></tbody></table>
+        </div>
+      </div>
     </div>
 
-    <!-- Investment Options Section -->
-    <div class="section investments">
-      <h2>Investment Options</h2>
-      <ul>
-        <li><strong>N100,000/$60 Investment:</strong> 50% profit after 30 days – Pay N5,000 daily</li>
-        <li><strong>N500,000/$300 Investment:</strong> 70% profit after 20 days – Pay N42,500 daily</li>
-        <li><strong>N1,000,000/$600 Investment:</strong> 90% profit after 15 days – Pay N126,000 daily</li>
-      </ul>
-      <!-- Payment Button with Paystack Integration -->
-      <button onclick="makePayment(100000)">Invest Now</button>
+    <!-- Graph & Summary -->
+    <div class="mt-6 glassmorphism p-4">
+      <h3 class="font-bold text-lg mb-2">Daily Earnings</h3>
+      <canvas id="earningsChart"></canvas>
+      <p class="mt-4 font-bold">Total Earned: <span id="totalEarnedDisplay">₦0.00</span></p>
     </div>
+  </main>
 
-    <!-- Withdrawal Section -->
-    <div class="section transactions">
-      <h2>Withdrawals & Transactions</h2>
-      <p>Note: A 3% service charge applies to every withdrawal.</p>
-      <button id="withdrawButton" disabled onclick="withdrawFunds()">Withdraw Funds</button>
-      <p>Withdrawal available in: <span class="timer" id="withdrawTimer"></span></p>
-      <h3>Transaction History</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Type</th>
-            <th>Amount</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody id="transactionHistory">
-          <!-- Transaction entries inserted here -->
-          <tr>
-            <td>Deposit</td>
-            <td>N100,000</td>
-            <td>2025-04-01</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Fund Transfer & Referral Section -->
-    <div class="section referrals">
-      <h2>Fund Transfer & Referral</h2>
-      <form id="transferForm">
-        <input type="text" id="recipient" placeholder="Recipient's Username or ID" required>
-        <input type="number" id="transferAmount" placeholder="Amount" required>
-        <button type="submit">Transfer Funds</button>
+  <!-- Modals -->
+  <!-- Withdrawal Modal -->
+  <div id="withdrawModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
+    <div class="bg-gray-800 p-6 rounded-lg w-11/12 md:w-1/3">
+      <h3 class="text-xl font-bold mb-4">Withdraw Funds</h3>
+      <form id="withdrawForm" onsubmit="handleWithdrawal(event)">
+        <p>Select Wallet:</p>
+        <label><input type="radio" name="walletType" value="bonus" checked> Bonus</label>
+        <label class="ml-4"><input type="radio" name="walletType" value="profit"> Profit</label>
+        <p class="mt-2">Method:</p>
+        <label><input type="radio" name="method" value="local" checked> Local Account</label>
+        <label class="ml-4"><input type="radio" name="method" value="usdt"> USDT (TRC20)</label>
+        <p class="mt-2">Transaction PIN:</p>
+        <input type="password" name="pin" maxlength="4" pattern="\d{4}" placeholder="4-digit PIN" class="w-full p-2 rounded mb-4" required>
+        <button type="submit" class="w-full bg-green-600 p-2 rounded">Confirm Withdraw</button>
+        <button type="button" onclick="closeWithdrawModal()" class="w-full bg-red-600 p-2 rounded mt-2">Cancel</button>
       </form>
-      <h3>Your Referral Link</h3>
-      <p><input type="text" readonly value="https://yourdomain.com/register?ref=YourUniqueID"></p>
     </div>
+  </div>
 
-    <!-- Account Details Section -->
-    <div class="section">
-      <h2>Account Details</h2>
-      <form id="accountDetails">
-        <input type="text" id="bankAccount" placeholder="Local Bank Account Details" required>
-        <input type="text" id="usdtWallet" placeholder="USDT Wallet Address (TRC20 Only)" required>
-        <button type="submit">Submit Details</button>
+  <!-- Transfer Modal -->
+  <div id="transferModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
+    <div class="bg-gray-800 p-6 rounded-lg w-11/12 md:w-1/3">
+      <h3 class="text-xl font-bold mb-4">Transfer Funds</h3>
+      <form id="transferForm" onsubmit="handleTransfer(event)">
+        <p>Wallet:</p>
+        <select name="walletType" class="w-full p-2 rounded mb-2">
+          <option value="bonus">Bonus Wallet</option>
+          <option value="profit">Profit Wallet</option>
+        </select>
+        <p>Recipient (Email or Code):</p>
+        <input type="text" name="recipient" class="w-full p-2 rounded mb-2" required>
+        <p>Amount:</p>
+        <input type="number" name="amount" class="w-full p-2 rounded mb-2" required>
+        <p class="mt-2">Transaction PIN:</p>
+        <input type="password" name="pin" maxlength="4" pattern="\d{4}" placeholder="4-digit PIN" class="w-full p-2 rounded mb-4" required>
+        <button type="submit" class="w-full bg-green-600 p-2 rounded">Send</button>
+        <button type="button" onclick="closeTransferModal()" class="w-full bg-red-600 p-2 rounded mt-2">Cancel</button>
       </form>
     </div>
   </div>
+
+  <!-- Bank Details Modal -->
+  <div id="bankModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
+    <div class="bg-gray-800 p-6 rounded-lg w-11/12 md:w-1/3">
+      <h3 class="text-xl font-bold mb-4">Enter Bank & USDT Details</h3>
+      <input id="acctName" type="text" placeholder="Name" class="w-full p-2 rounded mb-2" required>
+      <input id="acctNumber" type="text" placeholder="Account Number" class="w-full p-2 rounded mb-2" required>
+      <input id="bankName" type="text" placeholder="Bank Name" class="w-full p-2 rounded mb-2" required>
+      <input id="usdtAddress" type="text" placeholder="USDT Wallet (TRC20)" class="w-full p-2 rounded mb-4" required>
+      <button onclick="submitBankDetails()" class="w-full bg-blue-600 p-2 rounded">Submit</button>
+      <button onclick="closeBankModal()" class="w-full bg-red-600 p-2 rounded mt-2">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="text-center py-4 text-xs">© 2022-2025 GTSniperBot</footer>
 
   <script>
-    // Logout function
-    function logout() {
-      alert("Logged out successfully!");
-      window.location.href = "login.html";
-    }
+    // Config & State
+    const config = {
+      userFirstName: "David",
+      referralCode: Math.random().toString(36).substr(2,6).toUpperCase(),
+      bonusBalance: 22500,
+      personalBalance: 0,
+      profitBalance: 0,
+      firstWithdrawal: false,
+      plans: [
+        { code:"A", amt:180000, roi:0.4, days:90, usd:100 },
+        { code:"B", amt:540000, roi:0.6, days:80, usd:300 },
+        { code:"C", amt:1080000, roi:0.8, days:60, usd:600 },
+        { code:"D", amt:2160000, roi:1.0, days:50, usd:1200 }
+      ],
+      totalEarned: 0
+    };
+    let activeInvestments = [];
 
-    // Payment Function Using Paystack Inline
-    function makePayment(amount) {
-      var handler = PaystackPop.setup({
-        key: 'pk_live_a2e3b62d1ece2cc1bbffab35afa3819647c5a848',
-        email: 'user@example.com', // Replace with the user's email dynamically as needed.
-        amount: amount * 100, // Amount in kobo
-        currency: "NGN",
-        callback: function(response){
-          alert('Payment successful. Transaction reference: ' + response.reference);
-          // Update wallets and transaction history with successful payment.
-        },
-        onClose: function(){
-          alert('Payment window closed.');
-        }
-      });
-      handler.openIframe();
-    }
+    // Init UI
+    document.getElementById("userFirstName").innerText = config.userFirstName;
+    document.getElementById("referralCode").innerText = config.referralCode;
+    document.getElementById("bonusWalletDisplay").innerText = `₦${config.bonusBalance.toLocaleString()}.00`;
+    document.getElementById("personalWalletDisplay").innerText = `₦${config.personalBalance.toLocaleString()}.00`;
+    document.getElementById("profitWalletDisplay").innerText = `₦${config.profitBalance.toLocaleString()}.00`;
+    document.getElementById("localBankDisplay").innerText = "No bank details yet.";
+    document.getElementById("usdtDisplay").innerText = "No USDT address.";
+    document.getElementById("lastLogin").innerText = `Last Login: ${new Date().toLocaleString()}`;
+    QRCode.toCanvas(document.getElementById('qrcodeContainer'), config.referralCode);
 
-    // Withdrawal Timer Function (Updates Every Minute)
-    function updateWithdrawalTimer() {
-      var now = new Date();
-      var currentHour = now.getHours();
-      var day = now.getDay();  // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-
-      // Enable withdrawal only between 12pm - 10pm from Monday to Friday.
-      if (day > 0 && day < 6 && currentHour >= 12 && currentHour < 22) {
-        document.getElementById('withdrawButton').disabled = false;
-        document.getElementById('withdrawTimer').textContent = "Withdrawal open now!";
-      } else {
-        document.getElementById('withdrawButton').disabled = true;
-        // Calculate time until next withdrawal window (basic example)
-        var nextAvailable = new Date(now);
-        if (currentHour >= 22) {
-          nextAvailable.setDate(nextAvailable.getDate() + 1);
-        }
-        nextAvailable.setHours(12, 0, 0, 0);
-        var diff = nextAvailable - now;
-        var hours = Math.floor(diff / 1000 / 60 / 60);
-        var minutes = Math.floor((diff / 1000 / 60) % 60);
-        document.getElementById('withdrawTimer').textContent = hours + "h " + minutes + "m";
-      }
-    }
-    updateWithdrawalTimer();
-    setInterval(updateWithdrawalTimer, 60000); // Refresh timer every minute
-
-    // Withdrawal Processing Stub
-    function withdrawFunds() {
-      alert("Withdrawal processed (3% fee applied).");
-      // Log withdrawal transaction here
-    }
-
-    // Fund Transfer Simulation
-    document.getElementById('transferForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      alert("Funds transferred successfully!");
-      // Log transaction entry
+    // Render Plans
+    const plansContainer = document.getElementById("plansContainer");
+    config.plans.forEach(p => {
+      const card = document.createElement('div'); card.className='investment-card glassmorphism p-4';
+      const daily = Math.round(((p.amt*(1+p.roi))/p.days));
+      card.innerHTML = `<div class="flex justify-between items-start"><div><h3 class="font-bold">₦${p.amt.toLocaleString()} Plan</h3><p class="text-sm text-gray-300">${p.roi*100}% ROI • ${p.days} weekdays<br><span>($${p.usd})</span></p></div><button class="bg-green-600 px-4 py-2 rounded" onclick="invest('${p.code}')">Invest</button></div><div class="mt-2"><p class="text-sm">Daily: ₦${daily.toLocaleString()}</p></div>`;
+      plansContainer.appendChild(card);
     });
 
-    // Account Details Submission
-    document.getElementById('accountDetails').addEventListener('submit', function(e) {
-      e.preventDefault();
-      alert("Account details submitted and locked.");
-      document.getElementById('bankAccount').disabled = true;
-      document.getElementById('usdtWallet').disabled = true;
-    });
+    // Chart.js Setup
+    const ctx = document.getElementById('earningsChart');
+    const earningsChart = new Chart(ctx, { type:'line', data:{ labels:[], datasets:[{ label:'Daily Profit', data:[], fill:false }] }, options:{ scales:{ x:{ display:true }, y:{ display:true } } } });
+
+    // Utilities
+    function calculateExpiration(days){ let d=new Date(); let added=0; while(added<days){ d.setDate(d.getDate()+1); if(d.getDay()!=0&&d.getDay()!=6) added++; } return d.toLocaleDateString(); }
+    function recordTransaction(type,amt){ const id='TXN-'+Math.random().toString(36).substr(2,8).toUpperCase(); const now=new Date(); const row=`<tr><td>${id}</td><td>${type}</td><td>₦${amt.toLocaleString()}</td><td>${now.toLocaleDateString()} ${now.toLocaleTimeString()}</td></tr>`; document.getElementById('transactionHistory').innerHTML+=row; }
+    function sendNotif(msg){ const box=document.getElementById('notifBox'); box.innerText=msg; box.classList.remove('hidden'); setTimeout(()=>box.classList.add('hidden'),5000); }
+    function logout(){ window.location='login.html'; }
+
+    // Investment
+    function invest(code){ const plan=config.plans.find(p=>p.code===code); const handler=PaystackPop.setup({ key:'pk_live_a2e3b62d1ece2cc1bbffab35afa3819647c5a848', email:'user@example.com', amount:plan.amt*100, currency:'NGN', callback(res){ config.personalBalance+=plan.amt; document.getElementById('personalWalletDisplay').innerText=`₦${config.personalBalance.toLocaleString()}.00`; const inv={code,amount:plan.amt,roi:plan.roi,days:plan.days,start:new Date(),exp:calculateExpiration(plan.days)}; activeInvestments.push(inv); addInvestmentUI(inv); recordTransaction('Investment',plan.amt); sendNotif(`Invested ₦${plan.amt.toLocaleString()}`); }, onClose(){ alert('Payment cancelled'); } }); handler.openIframe(); }
+    function addInvestmentUI(inv){ const c=document.createElement('div'); c.className='investment-item p-4 bg-gray-800 rounded'; c.innerHTML=`<div class="flex justify-between"><div><p class="font-bold">₦${inv.amount.toLocaleString()}</p><p class="text-xs text-gray-300">Start: ${inv.start.toLocaleDateString()}</p></div><div><p class="text-sm">${inv.days} days</p><p class="text-xs text-green-400">Exp: ${inv.exp}</p></div></div>`; document.getElementById('activeInvestments').appendChild(c); }
+
+    // Withdrawal Modal Controls
+    function openWithdrawModal(type){ document.getElementById('withdrawModal').classList.remove('hidden'); document.querySelector('input[name="walletType"][value="'+type+'"]').checked=true; }
+    function closeWithdrawModal(){ document.getElementById('withdrawModal').classList.add('hidden'); }
+    function handleWithdrawal(e){ e.preventDefault(); const f=e.target; const wallet=f.walletType.value; const method=f.method.value; const pin=f.pin.value; if(pin.length!==4){ alert('Invalid PIN'); return; } let amt = wallet==='bonus'?config.bonusBalance:config.profitBalance; if(!config.firstWithdrawal && wallet!=='bonus'){ alert('First withdraw must include bonus & 5% capital'); return; } // Fee
+      const net=Math.round(amt*0.97); recordTransaction('Withdrawal',net); sendNotif(`Withdrawn ₦${net.toLocaleString()}`); if(wallet==='bonus'){ config.bonusBalance=0; document.getElementById('bonusWalletDisplay').innerText='₦0.00'; } else { config.profitBalance=0; document.getElementById('profitWalletDisplay').innerText='₦0.00'; } config.firstWithdrawal=true; closeWithdrawModal(); }
+
+    // Transfer Modal
+    function openTransferModal(){ document.getElementById('transferModal').classList.remove('hidden'); }
+    function closeTransferModal(){ document.getElementById('transferModal').classList.add('hidden'); }
+    function handleTransfer(e){ e.preventDefault(); const f=e.target; const wallet=f.walletType.value; const rec=f.recipient.value; const amt=parseFloat(f.amount.value); const pin=f.pin.value; if(pin.length!==4||amt<=0){ alert('Invalid'); return; } recordTransaction('Transfer',amt); sendNotif(`Sent ₦${amt.toLocaleString()} to ${rec}`); closeTransferModal(); }
+
+    // Bank Details
+    function openBankModal(){ document.getElementById('bankModal').classList.remove('hidden'); }
+    function closeBankModal(){ document.getElementById('bankModal').classList.add('hidden'); }
+    function submitBankDetails(){ const n=document.getElementById('acctName').value; const num=document.getElementById('acctNumber').value; const b=document.getElementById('bankName').value; const u=document.getElementById('usdtAddress').value; if(n&&num&&b&&u){ document.getElementById('localBankDisplay').innerText=`${b} • ${n} • ${num}`; document.getElementById('usdtDisplay').innerText=u; recordTransaction('Details Updated',0); sendNotif('Bank details updated'); closeBankModal(); } else alert('Complete fields'); }
+
+    // Daily Profit Simulation
+    setInterval(()=>{ activeInvestments.forEach(inv=>{ const daily=Math.round((inv.amount*(1+inv.roi))/inv.days); config.profitBalance+=daily; config.totalEarned+=daily; earningsChart.data.labels.push(new Date().toLocaleDateString()); earningsChart.data.datasets[0].data.push(daily); earningsChart.update(); document.getElementById('profitWalletDisplay').innerText=`₦${config.profitBalance.toLocaleString()}.00`; document.getElementById('totalEarnedDisplay').innerText=`₦${config.totalEarned.toLocaleString()}.00`; recordTransaction('Daily Profit',daily); }); },30000);
+
+    // Inactivity Logout (15m)
+    let idleTimer; function resetIdle(){ clearTimeout(idleTimer); idleTimer=setTimeout(()=>{ alert('Session expired'); logout(); },900000);} window.onload=resetIdle; ['mousemove','keydown','click'].forEach(evt=>document.addEventListener(evt,resetIdle));
+
+    // Fetch IP Log
+    fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(j=> console.log('Login IP:',j.ip));
   </script>
 </body>
 </html>

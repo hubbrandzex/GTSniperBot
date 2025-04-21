@@ -4,456 +4,102 @@
   <meta charset="UTF-8">
   <title>Premium Investment Dashboard | GTSniperBot</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Tailwind CSS -->
-  <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
-  <!-- Paystack Inline Script -->
-  <script src="https://js.paystack.co/v1/inline.js"></script>
-  <!-- QRCode Library -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-  <!-- Chart.js for Daily Earnings Graph -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  <style>
-    .glassmorphism {
-      background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(12px);
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.1);
-      box-shadow: 0 4px 30px rgba(0,0,0,0.1);
-    }
-    .investment-card:hover { transform: translateY(-3px); transition: transform 0.3s; }
-    .fade-in { animation: fadeIn 1s ease-in; }
-    @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-    input, textarea { color: #000 !important; background: #fff; }
-  </style>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-gradient-to-br from-gray-900 to-blue-900 text-white font-sans min-h-screen">
+<body class="bg-gradient-to-br from-blue-900 to-indigo-900 min-h-screen text-white font-['Roboto',sans-serif]">
+
   <!-- HEADER -->
-  <header class="flex justify-between items-center p-4 glassmorphism">
-    <div>
-      <h1 class="text-2xl font-bold">Welcome, <span id="userFirstName"></span></h1>
-      <p class="text-sm text-gray-300" id="lastLogin"></p>
+  <header class="flex justify-between items-center p-4 mx-auto max-w-6xl">
+    <div class="flex items-center space-x-4">
+      <canvas id="qrCanvas" class="w-12 h-12 bg-white p-1 rounded"></canvas>
+      <div>
+        <h1 class="text-2xl font-bold">Welcome, <span id="firstName"></span></h1>
+        <p id="lastLogin" class="text-sm text-gray-300"></p>
+      </div>
     </div>
     <div class="flex items-center space-x-4">
       <div class="text-right">
         <p class="text-sm">Referral Code</p>
-        <p class="font-mono" id="referralCode"></p>
+        <p id="referralCode" class="font-mono"></p>
       </div>
-      <canvas id="qrCanvas" class="w-16 h-16 bg-white p-1 rounded"></canvas>
+      <button id="logoutBtn" class="bg-red-600 px-4 py-2 rounded-lg hover:bg-red-700 transition">Logout</button>
     </div>
-    <button id="logoutBtn" class="bg-blue-600 px-4 py-2 rounded-lg">Logout</button>
   </header>
 
-  <!-- MAIN GRID -->
-  <main class="container mx-auto p-6 fade-in grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- 1. WALLETS -->
-    <div class="space-y-6">
-      <section class="glassmorphism p-4">
-        <div class="flex justify-between items-center">
-          <div>
-            <h3 class="font-bold text-lg">Bonus Wallet</h3>
-            <p class="text-2xl" id="bonusWalletDisplay">₦0</p>
-          </div>
-          <button class="withdraw-btn bg-blue-600 px-4 py-2 rounded-lg" onclick="openWithdrawModal('bonus')">
-            Withdraw
-            <div class="text-xs" id="bonusTimer">--:--</div>
-          </button>
+  <!-- TABS -->
+  <div class="container mx-auto p-4 max-w-6xl">
+    <div class="flex space-x-4 mb-6">
+      <button data-tab="wallets" class="tab-btn bg-white bg-opacity-10 py-2 px-4 rounded-lg">Wallets</button>
+      <button data-tab="invest" class="tab-btn bg-white bg-opacity-10 py-2 px-4 rounded-lg">Invest</button>
+      <button data-tab="transactions" class="tab-btn bg-white bg-opacity-10 py-2 px-4 rounded-lg">Transactions</button>
+      <button data-tab="bankDetails" class="tab-btn bg-white bg-opacity-10 py-2 px-4 rounded-lg">Bank/USDT</button>
+    </div>
+
+    <!-- WALLET SECTION -->
+    <section id="wallets" class="tab-content space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Bonus Wallet -->
+        <div class="bg-white bg-opacity-10 p-6 rounded-lg">
+          <h3 class="font-bold text-lg">Bonus Wallet <span class="text-xs">(₦22,500)</span></h3>
+          <p id="bonusBalance" class="text-2xl mt-2">₦0</p>
+          <button id="withdrawBonusBtn" class="mt-4 bg-blue-600 px-4 py-2 rounded-lg disabled:opacity-50" disabled>Withdraw Bonus</button>
+          <p id="bonusTimer" class="text-xs mt-1"></p>
         </div>
-      </section>
-      <section class="glassmorphism p-4">
-        <h3 class="font-bold text-lg mb-2">Profit Wallet</h3>
-        <p class="text-2xl" id="profitWalletDisplay">₦0</p>
-        <button class="withdraw-btn mt-2 bg-blue-600 px-4 py-2 rounded-lg" onclick="openWithdrawModal('profit')">Withdraw</button>
-      </section>
-      <section class="glassmorphism p-4">
-        <h3 class="font-bold text-lg">Personal Wallet</h3>
-        <p class="text-2xl" id="personalWalletDisplay">₦0</p>
-      </section>
-    </div>
-
-    <!-- 2. INVESTMENTS -->
-    <div class="lg:col-span-2 space-y-6">
-      <section class="glassmorphism p-4">
-        <h2 class="text-xl font-bold mb-4">Investment Plans</h2>
-        <div id="plansContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-      </section>
-      <section class="glassmorphism p-4">
-        <h3 class="font-bold text-lg mb-4">Active Investments</h3>
-        <div id="activeInvestments" class="space-y-4"></div>
-      </section>
-    </div>
-
-    <!-- 3. QUICK ACTIONS & DETAILS -->
-    <div class="space-y-6">
-      <section class="glassmorphism p-4">
-        <h3 class="font-bold text-lg mb-4">Quick Actions</h3>
-        <button id="transferBtn" class="w-full bg-purple-600 py-2 rounded" onclick="openTransferModal()">Transfer Funds</button>
-        <button id="bankBtn" class="w-full bg-blue-600 py-2 rounded mt-2" onclick="openBankModal()">Bank / USDT Details</button>
-      </section>
-      <section class="glassmorphism p-4">
-        <h3 class="font-bold text-lg mb-4">Recent Transactions</h3>
-        <div class="overflow-auto max-h-64">
-          <table class="w-full text-sm">
-            <thead><tr><th>ID</th><th>Type</th><th>Amt</th><th>Date</th></tr></thead>
-            <tbody id="txHistory"></tbody>
-          </table>
+        <!-- Profit Wallet -->
+        <div class="bg-white bg-opacity-10 p-6 rounded-lg">
+          <h3 class="font-bold text-lg">Profit Wallet</h3>
+          <p id="profitBalance" class="text-2xl mt-2">₦0</p>
+          <button id="withdrawProfitBtn" class="mt-4 bg-green-600 px-4 py-2 rounded-lg disabled:opacity-50" disabled>Withdraw Profit</button>
         </div>
-      </section>
-    </div>
-  </main>
+      </div>
+    </section>
 
-  <!-- DAILY EARNINGS GRAPH & SUMMARY -->
-  <section class="container mx-auto my-6 glassmorphism p-6">
-    <h3 class="text-xl font-bold mb-4">Daily Earnings (₦)</h3>
-    <canvas id="earningsChart" height="100"></canvas>
-    <p class="mt-4 text-lg">Total Earned: ₦<span id="totalEarned">0</span></p>
-  </section>
+    <!-- TRANSACTIONS SECTION -->
+    <section id="transactions" class="tab-content space-y-6">
+      <div class="space-y-4">
+        <h3 class="font-bold text-lg">Transaction History</h3>
+        <div id="transactionHistory"></div>
+      </div>
+    </section>
 
-  <!-- NOTIFICATIONS -->
-  <div id="notifContainer" class="fixed bottom-4 right-4 space-y-2"></div>
+    <!-- BANK/USDT SECTION -->
+    <section id="bankDetails" class="tab-content space-y-6">
+      <h3 class="font-bold text-lg">Bank & USDT Details</h3>
+      <form id="bankForm" class="space-y-4">
+        <input id="acctName" class="w-full px-4 py-2 rounded-lg bg-white bg-opacity-10" placeholder="Account Name" required />
+        <input id="acctNumber" class="w-full px-4 py-2 rounded-lg bg-white bg-opacity-10" placeholder="Account Number" required />
+        <input id="bankName" class="w-full px-4 py-2 rounded-lg bg-white bg-opacity-10" placeholder="Bank Name" required />
+        <input id="usdtAddr" class="w-full px-4 py-2 rounded-lg bg-white bg-opacity-10" placeholder="USDT Address" required />
+        <input id="bankPin" class="w-full px-4 py-2 rounded-lg bg-white bg-opacity-10" placeholder="Transaction Pin" type="password" required />
+        <button type="submit" class="bg-green-600 w-full py-2 rounded-lg hover:bg-green-700">Save Details</button>
+      </form>
+    </section>
+  </div>
 
-  <!-- FOOTER -->
-  <footer class="text-center py-4 text-gray-400">
-    &copy; 2022‑2025 GTSniperBot. All rights reserved.
-  </footer>
-
-  <!-- MODALS -->
   <!-- Withdraw Modal -->
-  <div id="withdrawModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
-    <div class="bg-white p-6 rounded-lg w-11/12 md:w-1/3 text-black">
-      <h3 class="text-xl font-bold mb-4">Withdraw from <span id="withWalletType"></span></h3>
-      <p>Available: ₦<span id="withAvailable"></span></p>
-      <p class="mt-2">Admin Fee (3%): ₦<span id="withFee"></span></p>
-      <p>Total You’ll Receive: ₦<span id="withNet"></span></p>
-      <div class="mt-4 space-y-2">
-        <label>
-          <input type="radio" name="withMethod" value="bank" checked> Bank Account
-        </label>
-        <label>
-          <input type="radio" name="withMethod" value="usdt"> USDT (TRC20)
-        </label>
+  <div id="withdrawModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div class="bg-white p-6 rounded-lg max-w-lg w-full">
+      <h3 class="font-bold text-xl mb-4" id="modalWalletType">Withdraw</h3>
+      <div>
+        <p class="text-lg">Available: <span id="modalAvailable"></span></p>
+        <p class="text-lg">Fee (3%): <span id="modalFee"></span></p>
+        <p class="text-lg font-semibold">Net: <span id="modalNet"></span></p>
       </div>
       <div class="mt-4">
-        <input type="password" id="withPIN" maxlength="4" placeholder="4‑digit PIN" class="w-full p-2 border rounded">
+        <label for="modalPin" class="block">Transaction Pin</label>
+        <input id="modalPin" class="w-full px-4 py-2 rounded-lg bg-gray-100" type="password" placeholder="Enter PIN" required />
       </div>
-      <button class="w-full bg-blue-600 py-2 rounded mt-4" onclick="submitWithdrawal()">Confirm Withdraw</button>
-      <button class="w-full bg-red-600 py-2 rounded mt-2" onclick="closeWithdrawModal()">Cancel</button>
-    </div>
-  </div>
-
-  <!-- Transfer Modal -->
-  <div id="transferModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
-    <div class="bg-white p-6 rounded-lg w-11/12 md:w-1/3 text-black">
-      <h3 class="text-xl font-bold mb-4">Transfer Funds</h3>
-      <input type="text" id="transRecipient" placeholder="Recipient Email or Code" class="w-full p-2 border rounded mb-2">
-      <input type="number" id="transAmount" placeholder="Amount" class="w-full p-2 border rounded mb-2">
-      <input type="password" id="transPIN" maxlength="4" placeholder="4‑digit PIN" class="w-full p-2 border rounded">
-      <button class="w-full bg-purple-600 py-2 rounded mt-4" onclick="submitTransfer()">Send</button>
-      <button class="w-full bg-red-600 py-2 rounded mt-2" onclick="closeTransferModal()">Cancel</button>
-    </div>
-  </div>
-
-  <!-- Bank/USDT Modal -->
-  <div id="bankModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
-    <div class="bg-white p-6 rounded-lg w-11/12 md:w-1/3 text-black">
-      <h3 class="text-xl font-bold mb-4">Bank & USDT Details</h3>
-      <input type="text" id="acctName" placeholder="Full Name" class="w-full p-2 border rounded mb-2">
-      <input type="text" id="acctNumber" placeholder="Account Number" class="w-full p-2 border rounded mb-2">
-      <input type="text" id="bankName" placeholder="Bank Name" class="w-full p-2 border rounded mb-2">
-      <input type="text" id="usdtAddr" placeholder="USDT (TRC20) Address" class="w-full p-2 border rounded mb-2">
-      <input type="password" id="bankPIN" maxlength="4" placeholder="4‑digit PIN" class="w-full p-2 border rounded">
-      <button class="w-full bg-blue-600 py-2 rounded mt-4" onclick="submitBankDetails()">Save Details</button>
-      <button class="w-full bg-red-600 py-2 rounded mt-2" onclick="closeBankModal()">Cancel</button>
-    </div>
-  </div>
-
-  <script>
-  // ────────────────────────────────────────────────────────────────────────────
-  // 1) INITIALIZE FIREBASE
-  // ────────────────────────────────────────────────────────────────────────────
-  const firebaseConfig = {
-    apiKey: "AIzaSyDmV1VihPju_r2F12a03z6CNzcuKOHmhng",
-  authDomain: "gtsniperbot-109a5.firebaseapp.com",
-  databaseURL: "https://gtsniperbot-109a5-default-rtdb.firebaseio.com",
-  projectId: "gtsniperbot-109a5",
-  storageBucket: "gtsniperbot-109a5.firebasestorage.app",
-  messagingSenderId: "229720296197",
-  appId: "1:229720296197:web:cadaa92d928c6ea6d5456c"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth(), db = firebase.firestore();
-
-  // ────────────────────────────────────────────────────────────────────────────
-  // 2) AUTH & USER SETUP
-  // ────────────────────────────────────────────────────────────────────────────
-  let currentUser, wallets = {};
-  auth.onAuthStateChanged(u => {
-    if (!u) return location.replace('login.html');
-    currentUser = u;
-    const userDoc = db.collection('users').doc(u.uid);
-    userDoc.onSnapshot(doc => {
-      const data = doc.data();
-      document.getElementById('userFirstName').innerText = data.firstName;
-      document.getElementById('lastLogin').innerText = `Last Login: ${new Date(data.lastLogin).toLocaleString()}`;
-      document.getElementById('referralCode').innerText = data.referralCode;
-      QRCode.toCanvas(document.getElementById('qrCanvas'), data.referralCode);
-      wallets = data.wallets; // { bonus, profit, personal }
-      updateWalletDisplays();
-    });
-    // Log login time & IP via Cloud Function
-    fetch('/logLogin', {
-      method: 'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ uid: u.uid })
-    });
-  });
-  document.getElementById('logoutBtn').onclick = () => auth.signOut();
-
-  function updateWalletDisplays() {
-    ['bonus','profit','personal'].forEach(w => {
-      document.getElementById(`${w}WalletDisplay`).innerText =
-        `₦${wallets[w].toLocaleString()}`;
-    });
-  }
-
-  // ────────────────────────────────────────────────────────────────────────────
-  // 3) RENDER PLANS & REAL‑TIME INVESTMENTS
-  // ────────────────────────────────────────────────────────────────────────────
-  const plans = [
-    { code:'A', amount:180000, roi:0.4, days:90, usd:100 },
-    { code:'B', amount:540000, roi:0.6, days:80, usd:300 },
-    { code:'C', amount:1080000, roi:0.8, days:60, usd:600 },
-    { code:'D', amount:2160000, roi:1.0, days:50, usd:1200 }
-  ];
-
-  const plansContainer = document.getElementById('plansContainer');
-  plans.forEach(p => {
-    const card = document.createElement('div');
-    card.className = 'investment-card glassmorphism p-4';
-    const daily = Math.round((p.amount*(1+p.roi))/p.days);
-    card.innerHTML = `
-      <div class="flex justify-between items-start">
-        <div>
-          <h3 class="font-bold">₦${p.amount.toLocaleString()} Plan</h3>
-          <p class="text-sm text-gray-300">${p.roi*100}% ROI • ${p.days} weekdays<br>
-          <span>($${p.usd})</span></p>
-        </div>
-        <button class="bg-green-600 px-4 py-2 rounded" 
-                onclick="startPaystack('${p.code}',${p.amount})">
-          Invest Now
-        </button>
+      <div class="flex justify-between items-center mt-4">
+        <button class="bg-red-600 px-4 py-2 rounded-lg" onclick="closeWithdrawModal()">Cancel</button>
+        <button id="confirmWithdraw" class="bg-blue-600 px-4 py-2 rounded-lg">Confirm</button>
       </div>
-      <p class="mt-4 text-sm">Daily Profit: ₦${daily.toLocaleString()}</p>`;
-    plansContainer.appendChild(card);
-  });
+    </div>
+  </div>
 
-  // Real‑time active investments
-  db.collection('users').doc(auth.currentUser?.uid)
-    .collection('investments')
-    .where('active', '==', true)
-    .onSnapshot(snap => {
-      const container = document.getElementById('activeInvestments');
-      container.innerHTML = '';
-      snap.forEach(doc => {
-        const inv = doc.data();
-        const div = document.createElement('div');
-        div.className = 'investment-item p-4 bg-gray-800 rounded';
-        div.innerHTML = `
-          <div class="flex justify-between">
-            <div>
-              <p class="font-bold">₦${inv.amount.toLocaleString()} Investment</p>
-              <p class="text-xs text-gray-300">Started: ${new Date(inv.startDate).toLocaleDateString()}</p>
-            </div>
-            <div class="text-right">
-              <p class="text-sm">Duration: ${inv.days} weekdays</p>
-              <p class="text-xs text-green-400">Expires: ${new Date(inv.expiration).toLocaleDateString()}</p>
-            </div>
-          </div>`;
-        container.appendChild(div);
-      });
-    });
-
-  // ────────────────────────────────────────────────────────────────────────────
-  // 4) PAYSTACK INTEGRATION
-  // ────────────────────────────────────────────────────────────────────────────
-  function startPaystack(planCode, amount) {
-    db.collection('users').doc(currentUser.uid).get().then(doc => {
-      const email = doc.data().email;
-      const handler = PaystackPop.setup({
-        key: 'pk_live_…',
-        email,
-        amount: amount * 100,
-        currency: 'NGN',
-        callback: res => {
-          // call Cloud Function to record Investment
-          fetch('/onPaymentSuccess', {
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({
-              uid: currentUser.uid,
-              reference: res.reference,
-              planCode, amount
-            })
-          }).then(() => notify('Investment successful.'));
-        },
-        onClose: () => alert('Payment cancelled.')
-      });
-      handler.openIframe();
-    });
-  }
-
-  // ────────────────────────────────────────────────────────────────────────────
-  // 5) WITHDRAWALS
-  // ────────────────────────────────────────────────────────────────────────────
-  let withdrawType;
-  function openWithdrawModal(type) {
-    withdrawType = type;
-    const avail = wallets[type];
-    document.getElementById('withWalletType').innerText = type.charAt(0).toUpperCase() + type.slice(1);
-    document.getElementById('withAvailable').innerText = avail.toLocaleString();
-    const fee = Math.round(avail * 0.03);
-    document.getElementById('withFee').innerText = fee.toLocaleString();
-    document.getElementById('withNet').innerText = (avail - fee).toLocaleString();
-    document.getElementById('withdrawModal').classList.remove('hidden');
-  }
-  function closeWithdrawModal() {
-    document.getElementById('withdrawModal').classList.add('hidden');
-  }
-  function submitWithdrawal() {
-    const pin = document.getElementById('withPIN').value;
-    const method = document.querySelector('input[name="withMethod"]:checked').value;
-    fetch('/requestWithdrawal', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ uid: currentUser.uid, type: withdrawType, pin, method })
-    })
-    .then(r=>r.json()).then(resp => {
-      if(resp.success) {
-        notify(`Withdrawal of ₦${resp.net.toLocaleString()} queued.`);
-        closeWithdrawModal();
-      } else alert(resp.message);
-    });
-  }
-
-  // ────────────────────────────────────────────────────────────────────────────
-  // 6) TRANSFERS
-  // ────────────────────────────────────────────────────────────────────────────
-  function openTransferModal() { document.getElementById('transferModal').classList.remove('hidden'); }
-  function closeTransferModal(){ document.getElementById('transferModal').classList.add('hidden'); }
-  function submitTransfer(){
-    const recipient = document.getElementById('transRecipient').value;
-    const amount    = parseInt(document.getElementById('transAmount').value,10);
-    const pin       = document.getElementById('transPIN').value;
-    fetch('/requestTransfer',{
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ uid:currentUser.uid, recipient, amount, pin })
-    }).then(r=>r.json()).then(resp=>{
-      if(resp.success) {
-        notify(`Transferred ₦${amount.toLocaleString()} to ${resp.toName}.`);
-        closeTransferModal();
-      } else alert(resp.message);
-    });
-  }
-
-  // ────────────────────────────────────────────────────────────────────────────
-  // 7) BANK / USDT DETAILS
-  // ────────────────────────────────────────────────────────────────────────────
-  function openBankModal(){ document.getElementById('bankModal').classList.remove('hidden'); }
-  function closeBankModal(){ document.getElementById('bankModal').classList.add('hidden'); }
-  function submitBankDetails(){
-    const name = document.getElementById('acctName').value.trim();
-    const number = document.getElementById('acctNumber').value.trim();
-    const bank = document.getElementById('bankName').value.trim();
-    const usdt = document.getElementById('usdtAddr').value.trim();
-    const pin  = document.getElementById('bankPIN').value;
-    fetch('/updateBankDetails',{
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ uid: currentUser.uid, name, number, bank, usdt, pin })
-    }).then(r=>r.json()).then(resp=>{
-      if(resp.success){
-        notify('Bank & USDT details saved.');
-        closeBankModal();
-      } else alert(resp.message);
-    });
-  }
-
-  // ────────────────────────────────────────────────────────────────────────────
-  // 8) REAL‑TIME TRANSACTION HISTORY
-  // ────────────────────────────────────────────────────────────────────────────
-  db.collection('users').doc(auth.currentUser?.uid)
-    .collection('transactions')
-    .orderBy('timestamp','desc')
-    .limit(20)
-    .onSnapshot(snap => {
-      const tbody = document.getElementById('txHistory');
-      tbody.innerHTML = '';
-      snap.forEach(d => {
-        const tx = d.data(), dt = new Date(tx.timestamp).toLocaleString();
-        tbody.innerHTML += `
-          <tr>
-            <td>${tx.txId}</td>
-            <td>${tx.type}</td>
-            <td>₦${tx.amount.toLocaleString()}</td>
-            <td>${dt}</td>
-          </tr>`;
-      });
-    });
-
-  // ────────────────────────────────────────────────────────────────────────────
-  // 9) DAILY EARNINGS CHART
-  // ────────────────────────────────────────────────────────────────────────────
-  let chart, earningsData = [];
-  db.collection('users').doc(auth.currentUser?.uid)
-    .collection('dailyProfits')
-    .orderBy('date','asc')
-    .onSnapshot(snap => {
-      earningsData = snap.docs.map(d => ({ date: d.id, amount: d.data().amount }));
-      renderChart();
-      const total = earningsData.reduce((sum, e)=> sum + e.amount, 0);
-      document.getElementById('totalEarned').innerText = total.toLocaleString();
-    });
-
-  function renderChart(){
-    const ctx = document.getElementById('earningsChart').getContext('2d');
-    if(chart) chart.destroy();
-    chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: earningsData.map(e=>e.date),
-        datasets: [{
-          label: 'Daily Profit',
-          data: earningsData.map(e=>e.amount),
-          fill: false,
-          tension: 0.1
-        }]
-      },
-      options: {
-        scales: { x:{ display:true }, y:{ beginAtZero:true } }
-      }
-    });
-  }
-
-  // ────────────────────────────────────────────────────────────────────────────
-  // 10) NOTIFICATIONS & AUTO‑LOGOUT
-  // ────────────────────────────────────────────────────────────────────────────
-  let notifCnt = 0, inactivityTimer;
-  function notify(msg){
-    const div = document.createElement('div');
-    div.className = 'bg-green-600 text-white p-3 rounded shadow';
-    div.innerText = msg;
-    document.getElementById('notifContainer').appendChild(div);
-    setTimeout(()=>div.remove(), 8000);
-  }
-  // Reset inactivity on user events
-  ['click','keydown','mousemove','scroll'].forEach(evt =>
-    document.addEventListener(evt, resetInactivity)
-  );
-  function resetInactivity(){
-    clearTimeout(inactivityTimer);
-    inactivityTimer = setTimeout(()=> auth.signOut(), 15*60*1000);
-  }
-  resetInactivity();
-  </script>
+  <!-- SCRIPTS -->
+  <script src="dashboard.js"></script>
 </body>
 </html>

@@ -54,28 +54,53 @@
           <p id="profitBalance" class="text-2xl mt-2">₦0</p>
           <button id="withdrawProfitBtn" class="mt-4 bg-green-600 px-4 py-2 rounded-lg disabled:opacity-50" disabled>Withdraw Profit</button>
         </div>
+        <!-- Personal Wallet -->
+        <div class="bg-white bg-opacity-10 p-6 rounded-lg">
+          <h3 class="font-bold text-lg">Personal Wallet</h3>
+          <p id="personalBalance" class="text-2xl mt-2">₦0</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- INVEST SECTION -->
+    <section id="invest" class="tab-content hidden">
+      <h2 class="text-xl font-bold mb-4">Investment Plans</h2>
+      <div class="flex items-center space-x-4 mb-4">
+        <select id="planSelect" class="px-4 py-2 rounded-lg bg-white text-black">
+          <option value="A">₦180,000 – 40% ROI over 90 days</option>
+          <option value="B">₦540,000 – 60% ROI over 80 days</option>
+          <option value="C">₦1,080,000 – 80% ROI over 60 days</option>
+          <option value="D">₦2,160,000 – 100% ROI over 50 days</option>
+        </select>
+        <button id="investNowBtn" class="bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700">Invest Now</button>
       </div>
     </section>
 
     <!-- TRANSACTIONS SECTION -->
-    <section id="transactions" class="tab-content space-y-6">
-      <div class="space-y-4">
-        <h3 class="font-bold text-lg">Transaction History</h3>
-        <div id="transactionHistory"></div>
-      </div>
+    <section id="transactions" class="tab-content hidden space-y-6">
+      <h3 class="font-bold text-lg">Transaction History</h3>
+      <div id="transactionHistory"></div>
     </section>
 
     <!-- BANK/USDT SECTION -->
-    <section id="bankDetails" class="tab-content space-y-6">
+    <section id="bankDetails" class="tab-content hidden space-y-6">
       <h3 class="font-bold text-lg">Bank & USDT Details</h3>
       <form id="bankForm" class="space-y-4">
-        <input id="acctName" class="w-full px-4 py-2 rounded-lg bg-white bg-opacity-10" placeholder="Account Name" required />
-        <input id="acctNumber" class="w-full px-4 py-2 rounded-lg bg-white bg-opacity-10" placeholder="Account Number" required />
-        <input id="bankName" class="w-full px-4 py-2 rounded-lg bg-white bg-opacity-10" placeholder="Bank Name" required />
-        <input id="usdtAddr" class="w-full px-4 py-2 rounded-lg bg-white bg-opacity-10" placeholder="USDT Address" required />
-        <input id="bankPin" class="w-full px-4 py-2 rounded-lg bg-white bg-opacity-10" placeholder="Transaction Pin" type="password" required />
-        <button type="submit" class="bg-green-600 w-full py-2 rounded-lg hover:bg-green-700">Save Details</button>
+        <input id="acctName" class="w-full px-4 py-2 rounded-lg bg-white bg-opacity-10" placeholder="Account Name" />
+        <input id="acctNumber" class="w-full px-4 py-2 rounded-lg bg-white bg-opacity-10" placeholder="Account Number" />
+        <input id="bankName" class="w-full px-4 py-2 rounded-lg bg-white bg-opacity-10" placeholder="Bank Name" />
+        <input id="usdtAddr" class="w-full px-4 py-2 rounded-lg bg-white bg-opacity-10" placeholder="USDT (TRC20) Address" />
+        <input id="bankPin" class="w-full px-4 py-2 rounded-lg bg-white bg-opacity-10" placeholder="Transaction PIN" type="password" />
+        <button type="submit" class="bg-green-600 w-full py-2 rounded-lg hover:bg-green-700">Save</button>
       </form>
+
+      <!-- Read-only summary after save -->
+      <div id="bankSummary" class="hidden bg-white bg-opacity-10 p-4 rounded-lg">
+        <p><strong>Account Name:</strong> <span id="sumName"></span></p>
+        <p><strong>Account Number:</strong> <span id="sumNumber"></span></p>
+        <p><strong>Bank Name:</strong> <span id="sumBank"></span></p>
+        <p><strong>USDT (TRC20):</strong> <span id="sumUsdt"></span></p>
+      </div>
     </section>
   </div>
 
@@ -89,8 +114,8 @@
         <p class="text-lg font-semibold">Net: <span id="modalNet"></span></p>
       </div>
       <div class="mt-4">
-        <label for="modalPin" class="block">Transaction Pin</label>
-        <input id="modalPin" class="w-full px-4 py-2 rounded-lg bg-gray-100" type="password" placeholder="Enter PIN" required />
+        <label for="modalPin" class="block">Transaction PIN</label>
+        <input id="modalPin" class="w-full px-4 py-2 rounded-lg bg-gray-100" type="password" required />
       </div>
       <div class="flex justify-between items-center mt-4">
         <button class="bg-red-600 px-4 py-2 rounded-lg" onclick="closeWithdrawModal()">Cancel</button>
@@ -100,6 +125,6 @@
   </div>
 
   <!-- SCRIPTS -->
-  <script src="dashboard.js"></script>
+  <script src="dashboard.js" type="module"></script>
 </body>
 </html>

@@ -15,25 +15,65 @@
     .footer-link { text-align: center; margin-top: 10px; }
   </style>
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js"></script>
-  <script>
-    // TODO: Replace with your Firebase project config
+  <!-- Firebase Modular SDKs -->
+  <script type="module">
+    // Import modular Firebase SDKs
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyDmV1VihPju_r2F12a03z6CNzcuKOHmhng",
       authDomain: "gtsniperbot-109a5.firebaseapp.com",
       databaseURL: "https://gtsniperbot-109a5-default-rtdb.firebaseio.com",
       projectId: "gtsniperbot-109a5",
-      storageBucket: "gtsniperbot-109a5.firebasestorage.app",
+      storageBucket: "gtsniperbot-109a5.appspot.com",
       messagingSenderId: "229720296197",
       appId: "1:229720296197:web:cadaa92d928c6ea6d5456c"
     };
+
     // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const usersRef = firebase.database().ref('users');
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // Handle registration
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("registrationForm");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = document.getElementById("contact").value.trim();
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+        const referral = document.getElementById("referral").value.trim();
+
+        if (password !== confirmPassword) {
+          alert("Passwords do not match.");
+          return;
+        }
+
+        try {
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          const uid = userCredential.user.uid;
+
+          // Store additional data
+          await set(ref(db, 'users/' + uid), {
+            contact: email,
+            referral: referral || null,
+            createdAt: new Date().toISOString()
+          });
+
+          alert("Registration successful! Redirecting to login...");
+          setTimeout(() => window.location.href = "login.html", 2000);
+
+        } catch (err) {
+          console.error(err);
+          alert("Error: " + err.message);
+        }
+      });
+    });
   </script>
 </head>
 <body>
@@ -51,40 +91,6 @@
       <p>Already registered? <a href="login.html">Login here</a></p>
     </div>
   </div>
-
-  <script>
-    document.getElementById('registrationForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const email = document.getElementById('contact').value.trim();
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
-      const referral = document.getElementById('referral').value.trim();
-
-      if (password !== confirmPassword) {
-        alert('Passwords do not match.');
-        return;
-      }
-
-      try {
-        // Create user with Firebase Auth
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        const uid = userCredential.user.uid;
-
-        // Store additional user data in Realtime Database
-        await usersRef.child(uid).set({
-          contact: email,
-          referral: referral || null,
-          createdAt: Date.now()
-        });
-
-        alert('Registration successful! Redirecting to login...');
-        setTimeout(() => { window.location.href = 'login.html'; }, 2000);
-      } catch (err) {
-        console.error(err);
-        alert('Error: ' + err.message);
-      }
-    });
-  </script>
 
 </body>
 </html>

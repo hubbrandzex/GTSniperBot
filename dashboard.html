@@ -10,241 +10,450 @@
   <script src="https://js.paystack.co/v1/inline.js"></script>
   <!-- QRCode Library -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-  <!-- Chart.js -->
+  <!-- Chart.js for Daily Earnings Graph -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDTdOCH906vse_wj2aSM2igxzxeMY3AdaI",
-      authDomain: "gtsniperbothosting.firebaseapp.com",
-      projectId: "gtsniperbothosting",
-      storageBucket: "gtsniperbothosting.firebasestorage.app",
-      messagingSenderId: "421895024210",
-      appId: "1:421895024210:web:b86f481da3d5f89534b98b"
-    };
-    firebase.initializeApp(firebaseConfig);
-  </script>
   <style>
-    .glassmorphism { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border-radius:16px; border:1px solid rgba(255,255,255,0.1); box-shadow:0 4px 30px rgba(0,0,0,0.1);}    
+    .glassmorphism {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.1);
+    }
     .investment-card:hover { transform: translateY(-3px); transition: transform 0.3s; }
     .fade-in { animation: fadeIn 1s ease-in; }
-    @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
-    input, textarea { color:#000!important; background:#fff; }
+    @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+    input, textarea { color: #000 !important; background: #fff; }
   </style>
 </head>
-<body class="bg-gradient-to-br from-gray-900 to-blue-900 text-white font-sans min-h-screen overflow-x-hidden">
-  <!-- Header -->
+<body class="bg-gradient-to-br from-gray-900 to-blue-900 text-white font-sans min-h-screen">
+  <!-- HEADER -->
   <header class="flex justify-between items-center p-4 glassmorphism">
     <div>
-      <h1 class="text-2xl font-bold">Welcome, <span id="userFirstName">User</span></h1>
+      <h1 class="text-2xl font-bold">Welcome, <span id="userFirstName"></span></h1>
       <p class="text-sm text-gray-300" id="lastLogin"></p>
     </div>
     <div class="flex items-center space-x-4">
-      <div class="text-right relative">
+      <div class="text-right">
         <p class="text-sm">Referral Code</p>
         <p class="font-mono" id="referralCode"></p>
-        <div id="notifBox" class="absolute top-full mt-2 w-64 bg-green-600 text-black p-2 rounded hidden"></div>
       </div>
-      <div id="qrcodeContainer" class="w-16 h-16 bg-white p-1 rounded"></div>
+      <canvas id="qrCanvas" class="w-16 h-16 bg-white p-1 rounded"></canvas>
     </div>
-    <button onclick="logout()" class="bg-blue-600 px-4 py-2 rounded-lg">Logout</button>
+    <button id="logoutBtn" class="bg-blue-600 px-4 py-2 rounded-lg">Logout</button>
   </header>
 
-  <!-- Main -->
-  <main class="container mx-auto p-6 fade-in">
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Wallets -->
-      <div class="space-y-6">
-        <div class="glassmorphism p-4 flex justify-between items-center">
-          <div><h3 class="font-bold text-lg">Bonus Wallet</h3><p class="text-2xl" id="bonusWalletDisplay"></p></div>
-          <button class="withdraw-btn bg-blue-600 px-4 py-2 rounded-lg" onclick="openWithdrawModal('bonus')">Withdraw</button>
+  <!-- MAIN GRID -->
+  <main class="container mx-auto p-6 fade-in grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- 1. WALLETS -->
+    <div class="space-y-6">
+      <section class="glassmorphism p-4">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="font-bold text-lg">Bonus Wallet</h3>
+            <p class="text-2xl" id="bonusWalletDisplay">₦0</p>
+          </div>
+          <button class="withdraw-btn bg-blue-600 px-4 py-2 rounded-lg" onclick="openWithdrawModal('bonus')">
+            Withdraw
+            <div class="text-xs" id="bonusTimer">--:--</div>
+          </button>
         </div>
-        <div class="glassmorphism p-4 flex justify-between items-center">
-          <div><h3 class="font-bold text-lg">Profit Wallet</h3><p class="text-2xl" id="profitWalletDisplay"></p></div>
-          <button class="withdraw-btn bg-blue-600 px-4 py-2 rounded-lg" onclick="openWithdrawModal('profit')">Withdraw</button>
-        </div>
-        <div class="glassmorphism p-4"><h3 class="font-bold text-lg">Personal Wallet</h3><p class="text-2xl" id="personalWalletDisplay"></p></div>
-      </div>
-
-      <!-- Investments -->
-      <div class="lg:col-span-2 space-y-6">
-        <div class="glassmorphism p-4">
-          <h2 class="text-xl font-bold mb-4">Investment Plans</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="plansContainer"></div>
-        </div>
-        <div class="glassmorphism p-4">
-          <h3 class="font-bold text-lg mb-4">Active Investments</h3>
-          <div id="activeInvestments" class="space-y-4"></div>
-        </div>
-      </div>
-
-      <!-- Sidebar -->
-      <div class="space-y-6">
-        <div class="glassmorphism p-4">
-          <h3 class="font-bold text-lg mb-4">Quick Actions</h3>
-          <button class="w-full bg-purple-600 py-2 rounded mb-2" onclick="openTransferModal()">Transfer Funds</button>
-          <button class="w-full bg-blue-600 py-2 rounded" onclick="openBankModal()">Add Bank Details</button>
-        </div>
-        <!-- Bank Details -->
-        <div class="glassmorphism p-4">
-          <h3 class="font-bold text-lg mb-2">Bank Details</h3>
-          <p class="text-xs" id="localBankDisplay"></p>
-          <p class="text-xs font-mono" id="usdtDisplay"></p>
-        </div>
-        <!-- Transactions -->
-        <div class="glassmorphism p-4">
-          <h3 class="font-bold text-lg mb-2">Recent Transactions</h3>
-          <table class="w-full text-xs"><thead><tr><th>ID</th><th>Type</th><th>Amt</th><th>Date</th></tr></thead><tbody id="transactionHistory"></tbody></table>
-        </div>
-      </div>
+      </section>
+      <section class="glassmorphism p-4">
+        <h3 class="font-bold text-lg mb-2">Profit Wallet</h3>
+        <p class="text-2xl" id="profitWalletDisplay">₦0</p>
+        <button class="withdraw-btn mt-2 bg-blue-600 px-4 py-2 rounded-lg" onclick="openWithdrawModal('profit')">Withdraw</button>
+      </section>
+      <section class="glassmorphism p-4">
+        <h3 class="font-bold text-lg">Personal Wallet</h3>
+        <p class="text-2xl" id="personalWalletDisplay">₦0</p>
+      </section>
     </div>
 
-    <!-- Graph & Summary -->
-    <div class="mt-6 glassmorphism p-4">
-      <h3 class="font-bold text-lg mb-2">Daily Earnings</h3>
-      <canvas id="earningsChart"></canvas>
-      <p class="mt-4 font-bold">Total Earned: <span id="totalEarnedDisplay">₦0.00</span></p>
+    <!-- 2. INVESTMENTS -->
+    <div class="lg:col-span-2 space-y-6">
+      <section class="glassmorphism p-4">
+        <h2 class="text-xl font-bold mb-4">Investment Plans</h2>
+        <div id="plansContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </section>
+      <section class="glassmorphism p-4">
+        <h3 class="font-bold text-lg mb-4">Active Investments</h3>
+        <div id="activeInvestments" class="space-y-4"></div>
+      </section>
+    </div>
+
+    <!-- 3. QUICK ACTIONS & DETAILS -->
+    <div class="space-y-6">
+      <section class="glassmorphism p-4">
+        <h3 class="font-bold text-lg mb-4">Quick Actions</h3>
+        <button id="transferBtn" class="w-full bg-purple-600 py-2 rounded" onclick="openTransferModal()">Transfer Funds</button>
+        <button id="bankBtn" class="w-full bg-blue-600 py-2 rounded mt-2" onclick="openBankModal()">Bank / USDT Details</button>
+      </section>
+      <section class="glassmorphism p-4">
+        <h3 class="font-bold text-lg mb-4">Recent Transactions</h3>
+        <div class="overflow-auto max-h-64">
+          <table class="w-full text-sm">
+            <thead><tr><th>ID</th><th>Type</th><th>Amt</th><th>Date</th></tr></thead>
+            <tbody id="txHistory"></tbody>
+          </table>
+        </div>
+      </section>
     </div>
   </main>
 
-  <!-- Modals -->
-  <!-- Withdrawal Modal -->
+  <!-- DAILY EARNINGS GRAPH & SUMMARY -->
+  <section class="container mx-auto my-6 glassmorphism p-6">
+    <h3 class="text-xl font-bold mb-4">Daily Earnings (₦)</h3>
+    <canvas id="earningsChart" height="100"></canvas>
+    <p class="mt-4 text-lg">Total Earned: ₦<span id="totalEarned">0</span></p>
+  </section>
+
+  <!-- NOTIFICATIONS -->
+  <div id="notifContainer" class="fixed bottom-4 right-4 space-y-2"></div>
+
+  <!-- FOOTER -->
+  <footer class="text-center py-4 text-gray-400">
+    &copy; 2022‑2025 GTSniperBot. All rights reserved.
+  </footer>
+
+  <!-- MODALS -->
+  <!-- Withdraw Modal -->
   <div id="withdrawModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
-    <div class="bg-gray-800 p-6 rounded-lg w-11/12 md:w-1/3">
-      <h3 class="text-xl font-bold mb-4">Withdraw Funds</h3>
-      <form id="withdrawForm" onsubmit="handleWithdrawal(event)">
-        <p>Select Wallet:</p>
-        <label><input type="radio" name="walletType" value="bonus" checked> Bonus</label>
-        <label class="ml-4"><input type="radio" name="walletType" value="profit"> Profit</label>
-        <p class="mt-2">Method:</p>
-        <label><input type="radio" name="method" value="local" checked> Local Account</label>
-        <label class="ml-4"><input type="radio" name="method" value="usdt"> USDT (TRC20)</label>
-        <p class="mt-2">Transaction PIN:</p>
-        <input type="password" name="pin" maxlength="4" pattern="\d{4}" placeholder="4-digit PIN" class="w-full p-2 rounded mb-4" required>
-        <button type="submit" class="w-full bg-green-600 p-2 rounded">Confirm Withdraw</button>
-        <button type="button" onclick="closeWithdrawModal()" class="w-full bg-red-600 p-2 rounded mt-2">Cancel</button>
-      </form>
+    <div class="bg-white p-6 rounded-lg w-11/12 md:w-1/3 text-black">
+      <h3 class="text-xl font-bold mb-4">Withdraw from <span id="withWalletType"></span></h3>
+      <p>Available: ₦<span id="withAvailable"></span></p>
+      <p class="mt-2">Admin Fee (3%): ₦<span id="withFee"></span></p>
+      <p>Total You’ll Receive: ₦<span id="withNet"></span></p>
+      <div class="mt-4 space-y-2">
+        <label>
+          <input type="radio" name="withMethod" value="bank" checked> Bank Account
+        </label>
+        <label>
+          <input type="radio" name="withMethod" value="usdt"> USDT (TRC20)
+        </label>
+      </div>
+      <div class="mt-4">
+        <input type="password" id="withPIN" maxlength="4" placeholder="4‑digit PIN" class="w-full p-2 border rounded">
+      </div>
+      <button class="w-full bg-blue-600 py-2 rounded mt-4" onclick="submitWithdrawal()">Confirm Withdraw</button>
+      <button class="w-full bg-red-600 py-2 rounded mt-2" onclick="closeWithdrawModal()">Cancel</button>
     </div>
   </div>
 
   <!-- Transfer Modal -->
   <div id="transferModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
-    <div class="bg-gray-800 p-6 rounded-lg w-11/12 md:w-1/3">
+    <div class="bg-white p-6 rounded-lg w-11/12 md:w-1/3 text-black">
       <h3 class="text-xl font-bold mb-4">Transfer Funds</h3>
-      <form id="transferForm" onsubmit="handleTransfer(event)">
-        <p>Wallet:</p>
-        <select name="walletType" class="w-full p-2 rounded mb-2">
-          <option value="bonus">Bonus Wallet</option>
-          <option value="profit">Profit Wallet</option>
-        </select>
-        <p>Recipient (Email or Code):</p>
-        <input type="text" name="recipient" class="w-full p-2 rounded mb-2" required>
-        <p>Amount:</p>
-        <input type="number" name="amount" class="w-full p-2 rounded mb-2" required>
-        <p class="mt-2">Transaction PIN:</p>
-        <input type="password" name="pin" maxlength="4" pattern="\d{4}" placeholder="4-digit PIN" class="w-full p-2 rounded mb-4" required>
-        <button type="submit" class="w-full bg-green-600 p-2 rounded">Send</button>
-        <button type="button" onclick="closeTransferModal()" class="w-full bg-red-600 p-2 rounded mt-2">Cancel</button>
-      </form>
+      <input type="text" id="transRecipient" placeholder="Recipient Email or Code" class="w-full p-2 border rounded mb-2">
+      <input type="number" id="transAmount" placeholder="Amount" class="w-full p-2 border rounded mb-2">
+      <input type="password" id="transPIN" maxlength="4" placeholder="4‑digit PIN" class="w-full p-2 border rounded">
+      <button class="w-full bg-purple-600 py-2 rounded mt-4" onclick="submitTransfer()">Send</button>
+      <button class="w-full bg-red-600 py-2 rounded mt-2" onclick="closeTransferModal()">Cancel</button>
     </div>
   </div>
 
-  <!-- Bank Details Modal -->
+  <!-- Bank/USDT Modal -->
   <div id="bankModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
-    <div class="bg-gray-800 p-6 rounded-lg w-11/12 md:w-1/3">
-      <h3 class="text-xl font-bold mb-4">Enter Bank & USDT Details</h3>
-      <input id="acctName" type="text" placeholder="Name" class="w-full p-2 rounded mb-2" required>
-      <input id="acctNumber" type="text" placeholder="Account Number" class="w-full p-2 rounded mb-2" required>
-      <input id="bankName" type="text" placeholder="Bank Name" class="w-full p-2 rounded mb-2" required>
-      <input id="usdtAddress" type="text" placeholder="USDT Wallet (TRC20)" class="w-full p-2 rounded mb-4" required>
-      <button onclick="submitBankDetails()" class="w-full bg-blue-600 p-2 rounded">Submit</button>
-      <button onclick="closeBankModal()" class="w-full bg-red-600 p-2 rounded mt-2">Cancel</button>
+    <div class="bg-white p-6 rounded-lg w-11/12 md:w-1/3 text-black">
+      <h3 class="text-xl font-bold mb-4">Bank & USDT Details</h3>
+      <input type="text" id="acctName" placeholder="Full Name" class="w-full p-2 border rounded mb-2">
+      <input type="text" id="acctNumber" placeholder="Account Number" class="w-full p-2 border rounded mb-2">
+      <input type="text" id="bankName" placeholder="Bank Name" class="w-full p-2 border rounded mb-2">
+      <input type="text" id="usdtAddr" placeholder="USDT (TRC20) Address" class="w-full p-2 border rounded mb-2">
+      <input type="password" id="bankPIN" maxlength="4" placeholder="4‑digit PIN" class="w-full p-2 border rounded">
+      <button class="w-full bg-blue-600 py-2 rounded mt-4" onclick="submitBankDetails()">Save Details</button>
+      <button class="w-full bg-red-600 py-2 rounded mt-2" onclick="closeBankModal()">Cancel</button>
     </div>
   </div>
-
-  <!-- Footer -->
-  <footer class="text-center py-4 text-xs">© 2022-2025 GTSniperBot</footer>
 
   <script>
-    // Config & State
-    const config = {
-      userFirstName: "David",
-      referralCode: Math.random().toString(36).substr(2,6).toUpperCase(),
-      bonusBalance: 22500,
-      personalBalance: 0,
-      profitBalance: 0,
-      firstWithdrawal: false,
-      plans: [
-        { code:"A", amt:180000, roi:0.4, days:90, usd:100 },
-        { code:"B", amt:540000, roi:0.6, days:80, usd:300 },
-        { code:"C", amt:1080000, roi:0.8, days:60, usd:600 },
-        { code:"D", amt:2160000, roi:1.0, days:50, usd:1200 }
-      ],
-      totalEarned: 0
-    };
-    let activeInvestments = [];
+  // ────────────────────────────────────────────────────────────────────────────
+  // 1) INITIALIZE FIREBASE
+  // ────────────────────────────────────────────────────────────────────────────
+  const firebaseConfig = {
+    apiKey: "AIzaSyDmV1VihPju_r2F12a03z6CNzcuKOHmhng",
+  authDomain: "gtsniperbot-109a5.firebaseapp.com",
+  databaseURL: "https://gtsniperbot-109a5-default-rtdb.firebaseio.com",
+  projectId: "gtsniperbot-109a5",
+  storageBucket: "gtsniperbot-109a5.firebasestorage.app",
+  messagingSenderId: "229720296197",
+  appId: "1:229720296197:web:cadaa92d928c6ea6d5456c"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth(), db = firebase.firestore();
 
-    // Init UI
-    document.getElementById("userFirstName").innerText = config.userFirstName;
-    document.getElementById("referralCode").innerText = config.referralCode;
-    document.getElementById("bonusWalletDisplay").innerText = `₦${config.bonusBalance.toLocaleString()}.00`;
-    document.getElementById("personalWalletDisplay").innerText = `₦${config.personalBalance.toLocaleString()}.00`;
-    document.getElementById("profitWalletDisplay").innerText = `₦${config.profitBalance.toLocaleString()}.00`;
-    document.getElementById("localBankDisplay").innerText = "No bank details yet.";
-    document.getElementById("usdtDisplay").innerText = "No USDT address.";
-    document.getElementById("lastLogin").innerText = `Last Login: ${new Date().toLocaleString()}`;
-    QRCode.toCanvas(document.getElementById('qrcodeContainer'), config.referralCode);
+  // ────────────────────────────────────────────────────────────────────────────
+  // 2) AUTH & USER SETUP
+  // ────────────────────────────────────────────────────────────────────────────
+  let currentUser, wallets = {};
+  auth.onAuthStateChanged(u => {
+    if (!u) return location.replace('login.html');
+    currentUser = u;
+    const userDoc = db.collection('users').doc(u.uid);
+    userDoc.onSnapshot(doc => {
+      const data = doc.data();
+      document.getElementById('userFirstName').innerText = data.firstName;
+      document.getElementById('lastLogin').innerText = `Last Login: ${new Date(data.lastLogin).toLocaleString()}`;
+      document.getElementById('referralCode').innerText = data.referralCode;
+      QRCode.toCanvas(document.getElementById('qrCanvas'), data.referralCode);
+      wallets = data.wallets; // { bonus, profit, personal }
+      updateWalletDisplays();
+    });
+    // Log login time & IP via Cloud Function
+    fetch('/logLogin', {
+      method: 'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ uid: u.uid })
+    });
+  });
+  document.getElementById('logoutBtn').onclick = () => auth.signOut();
 
-    // Render Plans
-    const plansContainer = document.getElementById("plansContainer");
-    config.plans.forEach(p => {
-      const card = document.createElement('div'); card.className='investment-card glassmorphism p-4';
-      const daily = Math.round(((p.amt*(1+p.roi))/p.days));
-      card.innerHTML = `<div class="flex justify-between items-start"><div><h3 class="font-bold">₦${p.amt.toLocaleString()} Plan</h3><p class="text-sm text-gray-300">${p.roi*100}% ROI • ${p.days} weekdays<br><span>($${p.usd})</span></p></div><button class="bg-green-600 px-4 py-2 rounded" onclick="invest('${p.code}')">Invest</button></div><div class="mt-2"><p class="text-sm">Daily: ₦${daily.toLocaleString()}</p></div>`;
-      plansContainer.appendChild(card);
+  function updateWalletDisplays() {
+    ['bonus','profit','personal'].forEach(w => {
+      document.getElementById(`${w}WalletDisplay`).innerText =
+        `₦${wallets[w].toLocaleString()}`;
+    });
+  }
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // 3) RENDER PLANS & REAL‑TIME INVESTMENTS
+  // ────────────────────────────────────────────────────────────────────────────
+  const plans = [
+    { code:'A', amount:180000, roi:0.4, days:90, usd:100 },
+    { code:'B', amount:540000, roi:0.6, days:80, usd:300 },
+    { code:'C', amount:1080000, roi:0.8, days:60, usd:600 },
+    { code:'D', amount:2160000, roi:1.0, days:50, usd:1200 }
+  ];
+
+  const plansContainer = document.getElementById('plansContainer');
+  plans.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'investment-card glassmorphism p-4';
+    const daily = Math.round((p.amount*(1+p.roi))/p.days);
+    card.innerHTML = `
+      <div class="flex justify-between items-start">
+        <div>
+          <h3 class="font-bold">₦${p.amount.toLocaleString()} Plan</h3>
+          <p class="text-sm text-gray-300">${p.roi*100}% ROI • ${p.days} weekdays<br>
+          <span>($${p.usd})</span></p>
+        </div>
+        <button class="bg-green-600 px-4 py-2 rounded" 
+                onclick="startPaystack('${p.code}',${p.amount})">
+          Invest Now
+        </button>
+      </div>
+      <p class="mt-4 text-sm">Daily Profit: ₦${daily.toLocaleString()}</p>`;
+    plansContainer.appendChild(card);
+  });
+
+  // Real‑time active investments
+  db.collection('users').doc(auth.currentUser?.uid)
+    .collection('investments')
+    .where('active', '==', true)
+    .onSnapshot(snap => {
+      const container = document.getElementById('activeInvestments');
+      container.innerHTML = '';
+      snap.forEach(doc => {
+        const inv = doc.data();
+        const div = document.createElement('div');
+        div.className = 'investment-item p-4 bg-gray-800 rounded';
+        div.innerHTML = `
+          <div class="flex justify-between">
+            <div>
+              <p class="font-bold">₦${inv.amount.toLocaleString()} Investment</p>
+              <p class="text-xs text-gray-300">Started: ${new Date(inv.startDate).toLocaleDateString()}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-sm">Duration: ${inv.days} weekdays</p>
+              <p class="text-xs text-green-400">Expires: ${new Date(inv.expiration).toLocaleDateString()}</p>
+            </div>
+          </div>`;
+        container.appendChild(div);
+      });
     });
 
-    // Chart.js Setup
-    const ctx = document.getElementById('earningsChart');
-    const earningsChart = new Chart(ctx, { type:'line', data:{ labels:[], datasets:[{ label:'Daily Profit', data:[], fill:false }] }, options:{ scales:{ x:{ display:true }, y:{ display:true } } } });
+  // ────────────────────────────────────────────────────────────────────────────
+  // 4) PAYSTACK INTEGRATION
+  // ────────────────────────────────────────────────────────────────────────────
+  function startPaystack(planCode, amount) {
+    db.collection('users').doc(currentUser.uid).get().then(doc => {
+      const email = doc.data().email;
+      const handler = PaystackPop.setup({
+        key: 'pk_live_…',
+        email,
+        amount: amount * 100,
+        currency: 'NGN',
+        callback: res => {
+          // call Cloud Function to record Investment
+          fetch('/onPaymentSuccess', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({
+              uid: currentUser.uid,
+              reference: res.reference,
+              planCode, amount
+            })
+          }).then(() => notify('Investment successful.'));
+        },
+        onClose: () => alert('Payment cancelled.')
+      });
+      handler.openIframe();
+    });
+  }
 
-    // Utilities
-    function calculateExpiration(days){ let d=new Date(); let added=0; while(added<days){ d.setDate(d.getDate()+1); if(d.getDay()!=0&&d.getDay()!=6) added++; } return d.toLocaleDateString(); }
-    function recordTransaction(type,amt){ const id='TXN-'+Math.random().toString(36).substr(2,8).toUpperCase(); const now=new Date(); const row=`<tr><td>${id}</td><td>${type}</td><td>₦${amt.toLocaleString()}</td><td>${now.toLocaleDateString()} ${now.toLocaleTimeString()}</td></tr>`; document.getElementById('transactionHistory').innerHTML+=row; }
-    function sendNotif(msg){ const box=document.getElementById('notifBox'); box.innerText=msg; box.classList.remove('hidden'); setTimeout(()=>box.classList.add('hidden'),5000); }
-    function logout(){ window.location='login.html'; }
+  // ────────────────────────────────────────────────────────────────────────────
+  // 5) WITHDRAWALS
+  // ────────────────────────────────────────────────────────────────────────────
+  let withdrawType;
+  function openWithdrawModal(type) {
+    withdrawType = type;
+    const avail = wallets[type];
+    document.getElementById('withWalletType').innerText = type.charAt(0).toUpperCase() + type.slice(1);
+    document.getElementById('withAvailable').innerText = avail.toLocaleString();
+    const fee = Math.round(avail * 0.03);
+    document.getElementById('withFee').innerText = fee.toLocaleString();
+    document.getElementById('withNet').innerText = (avail - fee).toLocaleString();
+    document.getElementById('withdrawModal').classList.remove('hidden');
+  }
+  function closeWithdrawModal() {
+    document.getElementById('withdrawModal').classList.add('hidden');
+  }
+  function submitWithdrawal() {
+    const pin = document.getElementById('withPIN').value;
+    const method = document.querySelector('input[name="withMethod"]:checked').value;
+    fetch('/requestWithdrawal', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ uid: currentUser.uid, type: withdrawType, pin, method })
+    })
+    .then(r=>r.json()).then(resp => {
+      if(resp.success) {
+        notify(`Withdrawal of ₦${resp.net.toLocaleString()} queued.`);
+        closeWithdrawModal();
+      } else alert(resp.message);
+    });
+  }
 
-    // Investment
-    function invest(code){ const plan=config.plans.find(p=>p.code===code); const handler=PaystackPop.setup({ key:'pk_live_a2e3b62d1ece2cc1bbffab35afa3819647c5a848', email:'user@example.com', amount:plan.amt*100, currency:'NGN', callback(res){ config.personalBalance+=plan.amt; document.getElementById('personalWalletDisplay').innerText=`₦${config.personalBalance.toLocaleString()}.00`; const inv={code,amount:plan.amt,roi:plan.roi,days:plan.days,start:new Date(),exp:calculateExpiration(plan.days)}; activeInvestments.push(inv); addInvestmentUI(inv); recordTransaction('Investment',plan.amt); sendNotif(`Invested ₦${plan.amt.toLocaleString()}`); }, onClose(){ alert('Payment cancelled'); } }); handler.openIframe(); }
-    function addInvestmentUI(inv){ const c=document.createElement('div'); c.className='investment-item p-4 bg-gray-800 rounded'; c.innerHTML=`<div class="flex justify-between"><div><p class="font-bold">₦${inv.amount.toLocaleString()}</p><p class="text-xs text-gray-300">Start: ${inv.start.toLocaleDateString()}</p></div><div><p class="text-sm">${inv.days} days</p><p class="text-xs text-green-400">Exp: ${inv.exp}</p></div></div>`; document.getElementById('activeInvestments').appendChild(c); }
+  // ────────────────────────────────────────────────────────────────────────────
+  // 6) TRANSFERS
+  // ────────────────────────────────────────────────────────────────────────────
+  function openTransferModal() { document.getElementById('transferModal').classList.remove('hidden'); }
+  function closeTransferModal(){ document.getElementById('transferModal').classList.add('hidden'); }
+  function submitTransfer(){
+    const recipient = document.getElementById('transRecipient').value;
+    const amount    = parseInt(document.getElementById('transAmount').value,10);
+    const pin       = document.getElementById('transPIN').value;
+    fetch('/requestTransfer',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ uid:currentUser.uid, recipient, amount, pin })
+    }).then(r=>r.json()).then(resp=>{
+      if(resp.success) {
+        notify(`Transferred ₦${amount.toLocaleString()} to ${resp.toName}.`);
+        closeTransferModal();
+      } else alert(resp.message);
+    });
+  }
 
-    // Withdrawal Modal Controls
-    function openWithdrawModal(type){ document.getElementById('withdrawModal').classList.remove('hidden'); document.querySelector('input[name="walletType"][value="'+type+'"]').checked=true; }
-    function closeWithdrawModal(){ document.getElementById('withdrawModal').classList.add('hidden'); }
-    function handleWithdrawal(e){ e.preventDefault(); const f=e.target; const wallet=f.walletType.value; const method=f.method.value; const pin=f.pin.value; if(pin.length!==4){ alert('Invalid PIN'); return; } let amt = wallet==='bonus'?config.bonusBalance:config.profitBalance; if(!config.firstWithdrawal && wallet!=='bonus'){ alert('First withdraw must include bonus & 5% capital'); return; } // Fee
-      const net=Math.round(amt*0.97); recordTransaction('Withdrawal',net); sendNotif(`Withdrawn ₦${net.toLocaleString()}`); if(wallet==='bonus'){ config.bonusBalance=0; document.getElementById('bonusWalletDisplay').innerText='₦0.00'; } else { config.profitBalance=0; document.getElementById('profitWalletDisplay').innerText='₦0.00'; } config.firstWithdrawal=true; closeWithdrawModal(); }
+  // ────────────────────────────────────────────────────────────────────────────
+  // 7) BANK / USDT DETAILS
+  // ────────────────────────────────────────────────────────────────────────────
+  function openBankModal(){ document.getElementById('bankModal').classList.remove('hidden'); }
+  function closeBankModal(){ document.getElementById('bankModal').classList.add('hidden'); }
+  function submitBankDetails(){
+    const name = document.getElementById('acctName').value.trim();
+    const number = document.getElementById('acctNumber').value.trim();
+    const bank = document.getElementById('bankName').value.trim();
+    const usdt = document.getElementById('usdtAddr').value.trim();
+    const pin  = document.getElementById('bankPIN').value;
+    fetch('/updateBankDetails',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ uid: currentUser.uid, name, number, bank, usdt, pin })
+    }).then(r=>r.json()).then(resp=>{
+      if(resp.success){
+        notify('Bank & USDT details saved.');
+        closeBankModal();
+      } else alert(resp.message);
+    });
+  }
 
-    // Transfer Modal
-    function openTransferModal(){ document.getElementById('transferModal').classList.remove('hidden'); }
-    function closeTransferModal(){ document.getElementById('transferModal').classList.add('hidden'); }
-    function handleTransfer(e){ e.preventDefault(); const f=e.target; const wallet=f.walletType.value; const rec=f.recipient.value; const amt=parseFloat(f.amount.value); const pin=f.pin.value; if(pin.length!==4||amt<=0){ alert('Invalid'); return; } recordTransaction('Transfer',amt); sendNotif(`Sent ₦${amt.toLocaleString()} to ${rec}`); closeTransferModal(); }
+  // ────────────────────────────────────────────────────────────────────────────
+  // 8) REAL‑TIME TRANSACTION HISTORY
+  // ────────────────────────────────────────────────────────────────────────────
+  db.collection('users').doc(auth.currentUser?.uid)
+    .collection('transactions')
+    .orderBy('timestamp','desc')
+    .limit(20)
+    .onSnapshot(snap => {
+      const tbody = document.getElementById('txHistory');
+      tbody.innerHTML = '';
+      snap.forEach(d => {
+        const tx = d.data(), dt = new Date(tx.timestamp).toLocaleString();
+        tbody.innerHTML += `
+          <tr>
+            <td>${tx.txId}</td>
+            <td>${tx.type}</td>
+            <td>₦${tx.amount.toLocaleString()}</td>
+            <td>${dt}</td>
+          </tr>`;
+      });
+    });
 
-    // Bank Details
-    function openBankModal(){ document.getElementById('bankModal').classList.remove('hidden'); }
-    function closeBankModal(){ document.getElementById('bankModal').classList.add('hidden'); }
-    function submitBankDetails(){ const n=document.getElementById('acctName').value; const num=document.getElementById('acctNumber').value; const b=document.getElementById('bankName').value; const u=document.getElementById('usdtAddress').value; if(n&&num&&b&&u){ document.getElementById('localBankDisplay').innerText=`${b} • ${n} • ${num}`; document.getElementById('usdtDisplay').innerText=u; recordTransaction('Details Updated',0); sendNotif('Bank details updated'); closeBankModal(); } else alert('Complete fields'); }
+  // ────────────────────────────────────────────────────────────────────────────
+  // 9) DAILY EARNINGS CHART
+  // ────────────────────────────────────────────────────────────────────────────
+  let chart, earningsData = [];
+  db.collection('users').doc(auth.currentUser?.uid)
+    .collection('dailyProfits')
+    .orderBy('date','asc')
+    .onSnapshot(snap => {
+      earningsData = snap.docs.map(d => ({ date: d.id, amount: d.data().amount }));
+      renderChart();
+      const total = earningsData.reduce((sum, e)=> sum + e.amount, 0);
+      document.getElementById('totalEarned').innerText = total.toLocaleString();
+    });
 
-    // Daily Profit Simulation
-    setInterval(()=>{ activeInvestments.forEach(inv=>{ const daily=Math.round((inv.amount*(1+inv.roi))/inv.days); config.profitBalance+=daily; config.totalEarned+=daily; earningsChart.data.labels.push(new Date().toLocaleDateString()); earningsChart.data.datasets[0].data.push(daily); earningsChart.update(); document.getElementById('profitWalletDisplay').innerText=`₦${config.profitBalance.toLocaleString()}.00`; document.getElementById('totalEarnedDisplay').innerText=`₦${config.totalEarned.toLocaleString()}.00`; recordTransaction('Daily Profit',daily); }); },30000);
+  function renderChart(){
+    const ctx = document.getElementById('earningsChart').getContext('2d');
+    if(chart) chart.destroy();
+    chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: earningsData.map(e=>e.date),
+        datasets: [{
+          label: 'Daily Profit',
+          data: earningsData.map(e=>e.amount),
+          fill: false,
+          tension: 0.1
+        }]
+      },
+      options: {
+        scales: { x:{ display:true }, y:{ beginAtZero:true } }
+      }
+    });
+  }
 
-    // Inactivity Logout (15m)
-    let idleTimer; function resetIdle(){ clearTimeout(idleTimer); idleTimer=setTimeout(()=>{ alert('Session expired'); logout(); },900000);} window.onload=resetIdle; ['mousemove','keydown','click'].forEach(evt=>document.addEventListener(evt,resetIdle));
-
-    // Fetch IP Log
-    fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(j=> console.log('Login IP:',j.ip));
+  // ────────────────────────────────────────────────────────────────────────────
+  // 10) NOTIFICATIONS & AUTO‑LOGOUT
+  // ────────────────────────────────────────────────────────────────────────────
+  let notifCnt = 0, inactivityTimer;
+  function notify(msg){
+    const div = document.createElement('div');
+    div.className = 'bg-green-600 text-white p-3 rounded shadow';
+    div.innerText = msg;
+    document.getElementById('notifContainer').appendChild(div);
+    setTimeout(()=>div.remove(), 8000);
+  }
+  // Reset inactivity on user events
+  ['click','keydown','mousemove','scroll'].forEach(evt =>
+    document.addEventListener(evt, resetInactivity)
+  );
+  function resetInactivity(){
+    clearTimeout(inactivityTimer);
+    inactivityTimer = setTimeout(()=> auth.signOut(), 15*60*1000);
+  }
+  resetInactivity();
   </script>
 </body>
 </html>

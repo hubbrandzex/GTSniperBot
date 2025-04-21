@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <title>Premium Investment Dashboard | GTSniperBot</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tailwind CSS -->
+  <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -67,10 +67,10 @@
       <h2 class="text-xl font-bold mb-4">Investment Plans</h2>
       <div class="flex items-center space-x-4 mb-4">
         <select id="planSelect" class="px-4 py-2 rounded-lg bg-white text-black">
-          <option value="A">₦180,000 – 40% ROI over 90 days</option>
-          <option value="B">₦540,000 – 60% ROI over 80 days</option>
-          <option value="C">₦1,080,000 – 80% ROI over 60 days</option>
-          <option value="D">₦2,160,000 – 100% ROI over 50 days</option>
+          <option value="A">₦180,000 – 40% ROI over 90 days</option>
+          <option value="B">₦540,000 – 60% ROI over 80 days</option>
+          <option value="C">₦1,080,000 – 80% ROI over 60 days</option>
+          <option value="D">₦2,160,000 – 100% ROI over 50 days</option>
         </select>
         <button id="investNowBtn" class="bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700">Invest Now</button>
       </div>
@@ -94,7 +94,6 @@
         <button type="submit" class="bg-green-600 w-full py-2 rounded-lg hover:bg-green-700">Save</button>
       </form>
 
-      <!-- Read-only summary after save -->
       <div id="bankSummary" class="hidden bg-white bg-opacity-10 p-4 rounded-lg">
         <p><strong>Account Name:</strong> <span id="sumName"></span></p>
         <p><strong>Account Number:</strong> <span id="sumNumber"></span></p>
@@ -124,7 +123,7 @@
     </div>
   </div>
 
-  <!-- SCRIPTS -->
-  <script src="dashboard.js" type="module"></script>
+  <!-- Scripts -->
+  <script type="module" src="dashboard.js" defer></script>
 </body>
 </html>

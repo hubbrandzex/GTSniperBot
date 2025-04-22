@@ -1,68 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login | GTSniperBot</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - GTSniperBot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Shared styles with dashboard */
+        :root {
+            --primary: #2A5C8A;
+            --accent: #32BEA6;
+            --bg: #f8fafc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .auth-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            color: black;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+        }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-blue-900 to-indigo-900 min-h-screen flex items-center justify-center font-['Roboto',sans-serif]">
-  <div class="bg-white bg-opacity-90 backdrop-filter backdrop-blur-lg p-8 rounded-2xl shadow-xl w-full max-w-md">
-    <h2 class="text-3xl font-bold text-center text-blue-900 mb-6">Welcome Back</h2>
-    <form id="loginForm" class="space-y-4">
-      <div>
-        <label for="loginContact" class="block text-sm font-medium text-gray-700">Email</label>
-        <input type="email" id="loginContact" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"/>
-      </div>
-      <div>
-        <label for="loginPassword" class="block text-sm font-medium text-gray-700">Password</label>
-        <input type="password" id="loginPassword" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"/>
-      </div>
-      <button type="submit" class="w-full py-2 mt-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">Login</button>
-      <p id="message" class="text-center text-sm mt-2"></p>
-    </form>
-    <p class="text-center text-gray-600 mt-4">Don't have an account? <a href="registration.html" class="text-blue-600 hover:underline">Register</a></p>
-  </div>
+<body>
+    <div class="auth-container">
+        <h2 style="text-align: center; margin-bottom: 2rem;">Login</h2>
+        <form id="loginForm">
+            <div class="input-group">
+                <input type="email" id="email" placeholder="Email" required>
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Password" required>
+            </div>
+            <button type="submit">Sign In</button>
+        </form>
+        <p style="text-align: center; margin-top: 1rem;">
+            New user? <a href="register.html">Create account</a>
+        </p>
+    </div>
 
-  <!-- Firebase SDKs v9 Compat -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  <!-- Firebase config -->
-  <script src="firebase-config.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import firebaseConfig from "./firebase-config.js";
 
-  <script>
-    // Initialize services
-    const auth = firebase.auth();
-    const db   = firebase.firestore();
-    const messageEl = document.getElementById('message');
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
 
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      messageEl.textContent = '';
-      const email = document.getElementById('loginContact').value.trim();
-      const pass  = document.getElementById('loginPassword').value;
-
-      try {
-        // Sign in with Firebase Auth
-        const { user } = await auth.signInWithEmailAndPassword(email, pass);
-        // Update lastLogin (merge ensures doc is created if missing)
-        await db.collection('users').doc(user.uid).set({ lastLogin: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
-
-        // Success feedback
-        messageEl.textContent = 'Login successful! Redirecting…';
-        messageEl.className = 'text-center text-sm mt-2 text-green-600';
-
-        setTimeout(() => window.location.href = 'dashboard.html', 1000);
-      } catch (err) {
-        console.error(err);
-        messageEl.textContent = err.message;
-        messageEl.className = 'text-center text-sm mt-2 text-red-600';
-      }
-    });
-  </script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            try {
+                await signInWithEmailAndPassword(
+                    auth,
+                    e.target.email.value,
+                    e.target.password.value
+                );
+                window.location.href = 'dashboard.html';
+            } catch (error) {
+                alert('Login failed: ' + error.message);
+            }
+        });
+    </script>
 </body>
 </html>

@@ -1,313 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>GTSniperBot | Home</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
-    /* Base Reset & Fonts */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Roboto', sans-serif; background: #f4f4f4; color: #333; }
-    a { text-decoration: none; color: inherit; }
-    /* Navigation Bar */
-    .navbar {
-      background: #0056b3;
-      padding: 10px 20px;
-      position: fixed;
-      top: 0;
-      width: 100%;
-      z-index: 1000;
-    }
-    .navbar .nav-links {
-      display: flex;
-      justify-content: flex-end;
-    }
-    .navbar .nav-links a {
-      color: #fff;
-      margin-left: 20px;
-      font-weight: 500;
-    }
-    /* Slider */
-    .slider {
-      position: relative;
-      height: 60vh;
-      overflow: hidden;
-    }
-    .slide {
-      display: none;
-      position: absolute;
-      height: 100%;
-      width: 100%;
-      background-size: cover;
-      background-position: center;
-    }
-    .slide.active { display: block; }
-    .slide-caption {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
-      background: rgba(0,0,0,0.6);
-      padding: 10px 20px;
-      border-radius: 4px;
-      color: #fff;
-      font-size: 1.2rem;
-    }
-    /* Animated GTSniperBot Tag */
-    .gtsnipertag {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background: rgba(255,215,0,0.9);
-      padding: 10px 20px;
-      border-radius: 4px;
-      font-size: 2rem;
-      font-weight: bold;
-      color: #000;
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
-    }
-    /* Content Sections */
-    section {
-      padding: 80px 20px;
-      margin-top: 80px;
-    }
-    .section-title { text-align: center; margin-bottom: 20px; color: #0056b3; font-size: 1.8rem; }
-    /* About Us - Team Members */
-    .team-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
-    .team-member {
-      background: #fff; padding: 20px;
-      border-radius: 8px; width: 280px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-    .team-member img {
-      width: 150px; height: 150px;
-      border-radius: 50%; object-fit: cover;
-      margin-bottom: 15px;
-    }
-    .team-member h3 { font-size: 1.2rem; margin-bottom: 8px; color: #0056b3; }
-    .team-member p { font-size: 0.9rem; color: #555; }
-    /* Contact Us Section */
-    .contact-form {
-      max-width: 600px; margin: 0 auto;
-      background: #fff; padding: 20px; border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    .contact-form input, .contact-form textarea {
-      width: 100%; padding: 10px; margin-bottom: 15px;
-      border: 1px solid #ccc; border-radius: 4px;
-    }
-    .contact-form button {
-      width: 100%; padding: 10px;
-      background: #0056b3; color: #fff;
-      border: none; border-radius: 4px;
-      font-size: 1rem; cursor: pointer;
-    }
-    .contact-form button:hover { background: #003f7f; }
-    /* Contact Details (Addresses & Phones) */
-    .contact-details { max-width: 600px; margin: 20px auto; text-align: center; }
-    .contact-details p { margin: 8px 0; }
-    /* Footer */
-    footer {
-      background: #222;
-      color: #fff;
-      text-align: center;
-      padding: 20px;
-      margin-top: 40px;
-    }
-    footer .social-icons a {
-      margin: 0 10px;
-      font-size: 1.5rem;
-      color: #fff;
-    }
-    /* Responsive */
-    @media (max-width: 768px) {
-      .team-container { flex-direction: column; align-items: center; }
-      .navbar .nav-links { flex-direction: column; align-items: flex-end; }
-      .navbar .nav-links a { margin: 5px 0; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTSniperBot - Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2A5C8A;
+            --accent: #32BEA6;
+            --bg: #f8fafc;
+        }
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js"></script>
-  <script>
-    // Your Firebase configuration (replace placeholders)
-    const firebaseConfig = {
-      apiKey: "AIzaSyDmV1VihPju_r2F12a03z6CNzcuKOHmhng",
-  authDomain: "gtsniperbot-109a5.firebaseapp.com",
-  databaseURL: "https://gtsniperbot-109a5-default-rtdb.firebaseio.com",
-  projectId: "gtsniperbot-109a5",
-  storageBucket: "gtsniperbot-109a5.firebasestorage.app",
-  messagingSenderId: "229720296197",
-  appId: "1:229720296197:web:cadaa92d928c6ea6d5456c"
-    };
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const inquiriesRef = firebase.database().ref('inquiries');
-  </script>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .hero-section {
+            text-align: center;
+            max-width: 800px;
+            margin: 4rem 0;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .auth-button {
+            background: var(--accent);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .auth-button:hover {
+            opacity: 0.9;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body>
+    <nav>
+        <h1 style="color: var(--primary); margin-bottom: 2rem;">GTSniperBot</h1>
+    </nav>
 
-  <!-- Navigation Bar -->
-  <nav class="navbar">
-    <div class="nav-links">
-      <a href="#home">Home</a>
-      <a href="#about">About Us</a>
-      <a href="#testimonials">Testimonials</a>
-      <a href="#contact">Contact Us</a>
-      <a href="registration.html">Register</a>
-      <a href="login.html">Login</a>
+    <div class="hero-section">
+        <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">Smart Crypto Investments</h1>
+        <p style="color: #666; margin-bottom: 2rem;">Automated trading with secure returns</p>
+        <div class="cta-buttons">
+            <a href="register.html" class="auth-button">Get Started</a>
+            <a href="login.html" class="auth-button">Login</a>
+        </div>
     </div>
-  </nav>
 
-  <!-- Image Rotator / Slider -->
-  <div class="slider" id="slider">
-    <div class="gtsnipertag">GTSniperBot</div>
-    <div class="slide active" style="background-image: url('https://source.unsplash.com/1600x900/?crypto');">
-      <div class="slide-caption">Crypto Revolution – Unleash the power of memecoins!</div>
+    <div class="features-grid">
+        <div class="feature-card">
+            <h3>Secure Trading</h3>
+            <p>Bank-grade security for all transactions</p>
+        </div>
+        <div class="feature-card">
+            <h3>Daily Returns</h3>
+            <p>Consistent profit generation</p>
+        </div>
+        <div class="feature-card">
+            <h3>24/7 Support</h3>
+            <p>Expert assistance available anytime</p>
+        </div>
     </div>
-    <div class="slide" style="background-image: url('https://source.unsplash.com/1600x900/?blockchain');">
-      <div class="slide-caption">Blockchain Breakthrough – Invest, earn, and prosper!</div>
-    </div>
-    <div class="slide" style="background-image: url('https://source.unsplash.com/1600x900/?bitcoins');">
-      <div class="slide-caption">Bit by Bit – Your gateway to digital wealth!</div>
-    </div>
-    <div class="slide" style="background-image: url('https://source.unsplash.com/1600x900/?memecoin');">
-      <div class="slide-caption">Memecoins Mania – Smart trading, smart profits!</div>
-    </div>
-  </div>
-
-  <!-- About Us Section -->
-  <section id="about">
-    <h2 class="section-title">About Us</h2>
-    <div class="team-container">
-      <!-- Team Member 1 -->
-      <div class="team-member">
-        <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=150&w=150" alt="Naim Ahmed">
-        <h3>Naim Ahmed</h3>
-        <p>Chief Strategist – Leads the vision and market strategies for GTSniperBot.</p>
-      </div>
-      <!-- Team Member 2 -->
-      <div class="team-member">
-        <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=150&w=150" alt="Noémi Macavei-Katócz">
-        <h3>Noémi Macavei-Katócz</h3>
-        <p>Lead Analyst – In charge of research, analytics, and ensuring data-driven decisions.</p>
-      </div>
-      <!-- Team Member 3 -->
-      <div class="team-member">
-        <img src="https://images.unsplash.com/photo-1590080879108-c17870a7e6b8?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=150&w=150" alt="Bruce Mars">
-        <h3>Bruce Mars</h3>
-        <p>Technology Officer – Oversees the technical development and system integrations.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Testimonials Section -->
-  <section id="testimonials">
-    <h2 class="section-title">Testimonials</h2>
-    <div class="team-container">
-      <div class="team-member" style="width:300px;">
-        <img src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=150&w=150" alt="Alex">
-        <h3>Alex, USA</h3>
-        <p>"GTSniperBot revolutionized my crypto trading experience – exceptional results!"</p>
-      </div>
-      <div class="team-member" style="width:300px;">
-        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=150&w=150" alt="Maria">
-        <h3>Maria, UK</h3>
-        <p>"The interface is smooth and intuitive, and my profits have never been better."</p>
-      </div>
-      <div class="team-member" style="width:300px;">
-        <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=150&w=150" alt="Chen">
-        <h3>Chen, China</h3>
-        <p>"Innovative, reliable and highly profitable – GTSniperBot is the future of trading."</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Contact Us Section -->
-  <section id="contact">
-    <h2 class="section-title">Contact Us</h2>
-    <div class="contact-form">
-      <input id="contact-name" type="text" placeholder="Your Name" required>
-      <input id="contact-email" type="email" placeholder="Your Email" required>
-      <textarea id="contact-msg" rows="5" placeholder="Your Message" required></textarea>
-      <button id="contact-submit" type="button">Send Message</button>
-    </div>
-    <div class="contact-details">
-      <p><strong>Address (Cyprus):</strong> 123 Nicosia Ave, Limassol, Cyprus</p>
-      <p><strong>Address (Korea):</strong> 456 Seoul Street, Gangnam-gu, Seoul, Korea</p>
-      <p><strong>Address (Seychelles):</strong> 789 Victoria Road, Mahe, Seychelles</p>
-      <p><strong>Telephone:</strong> +82 10-1234-5678</p>
-      <p><strong>Email:</strong> support@gtsniperbot.com</p>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer>
-    <div class="social-icons">
-      <a href="#">&#x1F426; Twitter</a> | 
-      <a href="#">&#x1F4F7; Instagram</a> | 
-      <a href="#">&#x1F4BB; LinkedIn</a> | 
-      <a href="#">&#x1F4FA; YouTube</a>
-    </div>
-    <p>&copy; 2025 GTSniperBot. All rights reserved.</p>
-  </footer>
-
-  <!-- JavaScript for Image Rotator -->
-  <script>
-    const slides = [
-      { image: 'https://source.unsplash.com/1600x900/?crypto,blockchain', caption: 'Crypto Revolution – Unleash the power of memecoins!' },
-      { image: 'https://source.unsplash.com/1600x900/?bitcoins,technology', caption: 'Invest in Digital Gold – Secure your future!' },
-      { image: 'https://source.unsplash.com/1600x900/?cryptocurrency,innovation', caption: 'Innovation & Profit – The future is now!' },
-      { image: 'https://source.unsplash.com/1600x900/?memecoin,fun', caption: 'Memecoin Mania – Trade smart and earn big!' }
-    ];
-    let currentSlide = 0;
-    function showSlide(index) {
-      document.querySelectorAll('.slide').forEach((slide, idx) => {
-        slide.classList.remove('active');
-        if (idx === index) {
-          slide.style.backgroundImage = `url(${slides[index].image})`;
-          slide.querySelector('.slide-caption').innerText = slides[index].caption;
-          slide.classList.add('active');
-        }
-      });
-    }
-    setInterval(() => {
-      currentSlide = (currentSlide + 1) % slides.length;
-      showSlide(currentSlide);
-    }, 5000);
-  </script>
-
-  <!-- Firebase Contact Form Handler -->
-  <script>
-    document.getElementById('contact-submit').addEventListener('click', () => {
-      const name    = document.getElementById('contact-name').value.trim();
-      const email   = document.getElementById('contact-email').value.trim();
-      const message = document.getElementById('contact-msg').value.trim();
-      if (!name || !email || !message) {
-        alert('All fields are required.');
-        return;
-      }
-      inquiriesRef.push({ name, email, message, timestamp: Date.now() })
-        .then(() => {
-          alert('Your message has been sent. Thank you!');
-          document.getElementById('contact-name').value = '';
-          document.getElementById('contact-email').value = '';
-          document.getElementById('contact-msg').value = '';
-        })
-        .catch(err => {
-          console.error(err);
-          alert('Error sending message. Please try again.');
-        });
-    });
-  </script>
-
 </body>
 </html>
